@@ -1,38 +1,223 @@
-.App {
-  text-align: center;
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
-}
-
-.App-header {
-  background-color: #282c34;
+.app {
   min-height: 100vh;
+  background: radial-gradient(
+    ellipse at 0% 50%,
+    #c5d9f5 0%,
+    #eff0f8 35%,
+    #f7d4ec 70%,
+    #f9c8e8 100%
+  );
+}
+
+/* ── Navbar ── */
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 18px 52px;
+  background: rgba(255, 255, 255, 0.6);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #1a1a2e;
+}
+
+.logo-icon {
+  font-size: 1.5rem;
+}
+
+.nav-buttons {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+
+.nav-register {
+  background: #3b3fa0;
+  color: #fff;
+  border: none;
+  border-radius: 50px;
+  padding: 10px 22px;
+  cursor: pointer;
+  font-size: 0.92rem;
+  font-weight: 600;
+  font-family: inherit;
+  transition: background 0.2s;
+}
+
+.nav-register:hover {
+  background: #2e3280;
+}
+
+.nav-cta {
+  background: none;
+  border: 1.5px solid #1a1a2e;
+  border-radius: 50px;
+  padding: 10px 24px;
+  cursor: pointer;
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: #1a1a2e;
+  font-family: inherit;
+  transition: background 0.2s, color 0.2s;
+}
+
+.nav-cta:hover {
+  background: #1a1a2e;
+  color: #fff;
+}
+
+/* ── Hero ── */
+.hero {
   display: flex;
   flex-direction: column;
   align-items: center;
+  padding: 90px 24px 70px;
+  text-align: center;
+}
+
+.hero-heading {
+  font-size: 3.4rem;
+  font-weight: 800;
+  color: #1a1a2e;
+  line-height: 1.18;
+  max-width: 700px;
+  margin-bottom: 22px;
+}
+
+.highlight {
+  background: linear-gradient(90deg, #5b9bd5 0%, #9b7fd4 50%, #e05ca0 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.hero-sub {
+  max-width: 570px;
+  color: #555;
+  font-size: 1.05rem;
+  line-height: 1.65;
+  margin-bottom: 38px;
+}
+
+.hero-buttons {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 64px;
+}
+
+.btn-primary {
+  background: #3b3fa0;
+  color: #fff;
+  border: none;
+  border-radius: 50px;
+  padding: 15px 34px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background 0.2s;
+}
+
+.btn-primary:hover {
+  background: #2e3280;
+}
+
+.btn-secondary {
+  background: none;
+  color: #3b3fa0;
+  border: 1.5px solid #3b3fa0;
+  border-radius: 50px;
+  padding: 15px 34px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background 0.2s, color 0.2s;
+}
+
+.btn-secondary:hover {
+  background: #3b3fa0;
+  color: #fff;
+}
+
+.btn-test {
+  background: none;
+  color: #999;
+  border: 1.5px dashed #bbb;
+  border-radius: 50px;
+  padding: 15px 24px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  font-family: inherit;
+  transition: color 0.2s, border-color 0.2s;
+}
+
+.btn-test:hover {
+  color: #555;
+  border-color: #888;
+}
+
+/* ── Feature Cards ── */
+.cards {
+  display: flex;
+  gap: 24px;
+  flex-wrap: wrap;
   justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
 }
 
-.App-link {
-  color: #61dafb;
+.card {
+  background: rgba(255, 255, 255, 0.6);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border-radius: 22px;
+  padding: 34px 30px;
+  width: 310px;
+  text-align: left;
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+.card-icon {
+  width: 52px;
+  height: 52px;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.4rem;
+  margin-bottom: 20px;
+}
+
+.icon-pink  { background: #ffbdbd; }
+.icon-blue  { background: #b8d8ff; }
+.icon-green { background: #b3f0c4; }
+
+.card h3 {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #1a1a2e;
+  margin-bottom: 8px;
+}
+
+.card p {
+  color: #666;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  min-height: 1.5em;
 }

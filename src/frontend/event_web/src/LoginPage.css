@@ -1,0 +1,152 @@
+.login-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: radial-gradient(
+    ellipse at 0% 50%,
+    #c5d9f5 0%,
+    #eff0f8 35%,
+    #f7d4ec 70%,
+    #f9c8e8 100%
+  );
+}
+
+.login-card {
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-radius: 24px;
+  padding: 48px 44px;
+  width: 100%;
+  max-width: 420px;
+  position: relative;
+}
+
+.back-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 0.9rem;
+  color: #555;
+  font-family: inherit;
+  padding: 0;
+  margin-bottom: 28px;
+  display: block;
+}
+
+.back-btn:hover {
+  color: #1a1a2e;
+}
+
+.login-logo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #1a1a2e;
+  margin-bottom: 28px;
+}
+
+.login-logo span:first-child {
+  font-size: 1.4rem;
+}
+
+.login-heading {
+  font-size: 1.8rem;
+  font-weight: 800;
+  color: #1a1a2e;
+  margin-bottom: 6px;
+}
+
+.login-sub {
+  color: #777;
+  font-size: 0.95rem;
+  margin-bottom: 32px;
+}
+
+.login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.form-group label {
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: #1a1a2e;
+}
+
+.password-label-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.forgot-link {
+  font-size: 0.85rem;
+  color: #3b3fa0;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.forgot-link:hover {
+  text-decoration: underline;
+}
+
+.form-group input {
+  padding: 12px 16px;
+  border: 1.5px solid #ddd;
+  border-radius: 12px;
+  font-size: 0.95rem;
+  font-family: inherit;
+  background: rgba(255, 255, 255, 0.8);
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.form-group input:focus {
+  border-color: #3b3fa0;
+}
+
+.login-btn {
+  background: #3b3fa0;
+  color: #fff;
+  border: none;
+  border-radius: 50px;
+  padding: 14px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  margin-top: 4px;
+  transition: background 0.2s;
+}
+
+.login-btn:hover {
+  background: #2e3280;
+}
+
+.login-footer {
+  text-align: center;
+  margin-top: 24px;
+  font-size: 0.9rem;
+  color: #666;
+}
+
+.login-link {
+  color: #3b3fa0;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.login-link:hover {
+  text-decoration: underline;
+}
