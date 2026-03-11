@@ -43,7 +43,7 @@ def _initialize():
     
     ping_task = loop.create_task(ping_loop())
 
-async def give_recommendation(data: dict):
+async def inference(data: dict):
     if not HF_TOKEN: raise ValueError("HF_TOKEN missing")
 
     session_hash = uuid.uuid4().hex
@@ -73,8 +73,22 @@ async def give_recommendation(data: dict):
                     return output
 
     raise RuntimeError("Stream ended unexpectedly")
+    
+async def give_recommendation(input: str, choices: list):
+    data = {"input": input, "choices": choices}
+    if not isinstance(data, dict): raise ValueError("Data must be a dictionary.")
+    data["task"] = "sentence"
+    data["normalize"] = False
+    return await inference(data)
+
+async def give_classification(input: str, choices: list):
+    data = {"input": input, "choices": choices}
+    if not isinstance(data, dict): raise ValueError("Data must be a dictionary.")
+    data["task"] = "classification"
+    data["normalize"] = True
+    return await inference(data)
 
 # Initialize
 _initialize()
 
-__all__ = ["give_recommendation"]
+__all__ = ["give_recommendation", "give_classification"]
