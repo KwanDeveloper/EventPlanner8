@@ -1,7 +1,7 @@
 # Imports
-from cryptography.fernet import Fernet
 import base64
 import hashlib
+from cryptography.fernet import Fernet
 
 # Variables
 REFERENCE = "EventPlanner8"
@@ -12,4 +12,6 @@ def encrypt(text: str, reference: str = REFERENCE): return Fernet(generate_key(r
 def decrypt(cipher_text: str, reference: str = REFERENCE): return Fernet(generate_key(reference)).decrypt(cipher_text.encode()).decode()
 
 # Initialize
+# print(encrypt("Hello World!"))
+
 __all__ = ["encrypt", "decrypt"]
