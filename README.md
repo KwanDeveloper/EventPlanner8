@@ -32,7 +32,7 @@ This directory contains every feature as part of our front-end for our applicati
 This directory contains every feature as part of our back-end for our application.
 - [Python](https://www.python.org/) — server-side logic and API
 - [MongoDB](https://www.mongodb.com/) — database for users and events
-- [Hugging Face](https://huggingface.co/) — open-source machine learning models and inference for the recommendation system
+- [Hugging Face](https://huggingface.co/) — open-source machine learning models and inference for the recommendation and classification system
 
 ### Recommendation/Classification Engine
 Both the event recommendation and classification system are powered by Hugging Face models running inside a Hugging Face Space.
