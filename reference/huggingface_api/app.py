@@ -58,8 +58,8 @@ def encode_texts(texts):
 
 def warmup():
     try:
-        encode_texts(["University of Florida campus announcements"], "")
-        encode_texts(["UF engineering workshop and student events"], "")
+        encode_texts(["University of Florida campus announcements"])
+        encode_texts(["UF engineering workshop and student events"])
         print("[SYSTEM] | Warmup completed.", flush=True)
     except Exception as error:
         print(f"[SYSTEM] | Warmup failed: {error}", flush=True)
@@ -74,15 +74,13 @@ def generate(input_json: str):
     sentences = input_data.get("sentences", [])
     if not isinstance(sentences, list): sentences = []
     sentences = [str(value).strip() for value in sentences if str(value).strip()]
+
+    normalize_scores = bool(input_data.get("normalize", True))
     
-    input_data_print = {"source": source, "sentences": sentences}
-    print(f"[GENERATE] | Generating output...\n──────────\nInput: {input_data_print}\n──────────", flush=True)
+    print(f"[GENERATE] | Generating output...\n──────────\nInput: {input_data}\n──────────", flush=True)
 
-    if not source:
-        return {"error": "Missing source."}
-
-    if not sentences:
-        return {"error": "Missing sentences in array data type."}
+    if not source: return {"error": "Missing source."}
+    if not sentences: return {"error": "Missing sentences in array data type."}
 
     started = time.time()
 
@@ -91,16 +89,16 @@ def generate(input_json: str):
     source_embedding = embeddings[0]
     sentence_embeddings = embeddings[1:]
 
-    scores = np.matmul(sentence_embeddings, source_embedding).tolist()
+    scores = np.matmul(sentence_embeddings, source_embedding)
+    scores = (np.exp(scores) / np.sum(np.exp(scores))).tolist() if normalize_scores else scores.tolist()
 
     output = [{"sentence": sentences[index], "score": float(scores[index])} for index in range(len(sentences))]
-
     output.sort(key=lambda value: value["score"], reverse=True)
 
     generation_time = max(time.time() - started, 1e-6)
     output_data = {"id": task_id, "output": output, "highest": output[0] if output else None, "lowest": output[-1] if output else None, "generation_time": generation_time}
 
-    print(f"[GENERATE] | Generation completed for '{task_id}' task in {generation_time} seconds.\n──────────\nInput: {input_data_print}\n──────────\nOutput: {output_data}\n──────────", flush=True)
+    print(f"[GENERATE] | Generation completed for '{task_id}' task in {generation_time} seconds.\n──────────\nInput: {input_data}\n──────────\nOutput: {output_data}\n──────────", flush=True)
     
     return output_data
 
@@ -125,7 +123,8 @@ with gr.Blocks() as demo:
                     "University of Florida research symposium now accepting undergraduate posters",
                     "Local apartment complex offers discounted parking for summer residents",
                     "Marston Science Library announces extended exam week study hours"
-                ]
+                ],
+                "normalize": True,
             },
             indent=4
         )

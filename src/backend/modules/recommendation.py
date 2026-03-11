@@ -1,9 +1,11 @@
+# Imports
 import os
 import json
 import uuid
 import asyncio
 import aiohttp
 
+# Variables
 HF_TOKEN = os.getenv("HF_TOKEN", "YckEWMGAbmSQKFQAvEyQSceXzUriVdMiLF_fh"[::-1])
 PING_INTERVAL = 60 * 60 * 6
 
@@ -15,6 +17,7 @@ timeout_60 = aiohttp.ClientTimeout(total=60)
 
 ping_task = None
 
+# Functions
 def _initialize():
     global ping_task
 
@@ -71,6 +74,7 @@ async def give_recommendation(data: dict):
 
     raise RuntimeError("Stream ended unexpectedly")
 
+# Initialize
 _initialize()
 
 __all__ = ["give_recommendation"]

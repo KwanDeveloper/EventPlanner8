@@ -1,1 +1,7 @@
-# working on mongodb class
+# Imports
+
+# Variables
+
+# Functions
+
+# Initialize
