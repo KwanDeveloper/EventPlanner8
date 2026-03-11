@@ -38,18 +38,14 @@ This directory contains every feature as part of our back-end for our applicatio
 The event recommendation system is powered by Hugging Face models running inside a Hugging Face Space.
 
 Libraries used:
-- [Hugging Face Transformers](https://huggingface.co/docs/transformers/index)
-- [ONNX Runtime](https://onnxruntime.ai/)
-- [Optimum ONNX](https://huggingface.co/docs/optimum/index)
-- [NumPy](https://numpy.org/)
-- [Gradio](https://www.gradio.app/)
+- [Hugging Face Transformers](https://huggingface.co/docs/transformers/index) — model loading and tokenizer utilities
+- [ONNX Runtime](https://onnxruntime.ai/) — optimized inference engine for running the model
+- [Optimum ONNX](https://huggingface.co/docs/optimum/index) — Hugging Face integration for ONNX models
+- [NumPy](https://numpy.org/) — numerical computation for vector operations
+- [Gradio](https://www.gradio.app/) — interface used to host the Hugging Face Space API
 
 Model used:
-- [keisuke-miyako/all-MiniLM-L6-v2-onnx-fp16](https://huggingface.co/keisuke-miyako/all-MiniLM-L6-v2-onnx-fp16)
-
-This model converts text into semantic embeddings so the system can compare event descriptions with user interests.
-
-Similarity scoring is performed using cosine similarity via the dot product of normalized vectors.
+- [keisuke-miyako/all-MiniLM-L6-v2-onnx-fp16](https://huggingface.co/keisuke-miyako/all-MiniLM-L6-v2-onnx-fp16) — An optimized version of the MiniLM embedding model used for semantic similarity between event descriptions and user interests
 
 The Hugging Face API source code is located in [reference/huggingface_api](reference/huggingface_api).
 
