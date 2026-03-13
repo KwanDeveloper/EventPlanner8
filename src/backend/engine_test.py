@@ -1,7 +1,6 @@
 import asyncio
 import json
     
-from modules.data import data
 from modules.engine import give_recommendation, give_classification
 
 def print_result(input: str, result: dict):
@@ -12,12 +11,12 @@ def print_result(input: str, result: dict):
     elif isinstance(highest, dict): highest_label = str(highest.get("label", ""))
     else: highest_label = str(highest or "")
 
-    print("=== API Result ===")
-    print(f"Input: {input}") # The original source text provided by the user
-    print(f"Top Choice: {highest_label}") # The sentence with the highest similarity score to the source text
-    print(f"Inference Time: {result['generation_time']} seconds") # The time taken to compute the recommendation (very fast)
-    # print(f"Full JSON Result: {json.dumps(result, indent=2)}")
-    print("=============================")
+    print("=== engine.py Result ===\n")
+    print(f"Input: {input}\n") # The original source text provided by the user
+    print(f"Top Choice: {highest_label}\n") # The sentence with the highest similarity score to the source text
+    print(f"Inference Time: {result['generation_time']} seconds\n") # The time taken to compute the recommendation (very fast)
+    print(f"Full JSON Output:\n{json.dumps(result)}\n") # The complete JSON output from the API, including specific scores for each label
+    print("========================\n")
 
 async def example_1(): # Example usage to sort event announcements by tags or brief description
     # Example source text (accepts a string or a list of strings for batching)
@@ -40,7 +39,8 @@ async def example_2(): # Example usage to check if an event is appropriate or no
     result = await give_classification(input, choices)
     print_result(input, result)
 
-async def main(): await asyncio.gather(example_1(), example_2())
+async def main():
+    print("Running examples...\n")
+    await asyncio.gather(example_1(), example_2())
 
-print("Running examples...")
 asyncio.run(main())
