@@ -40,6 +40,7 @@ async def example_2(): # Example usage to check if an event is appropriate or no
     result = await give_classification(input, choices)
     print_result(input, result)
 
-async def main(): await asyncio.gather(example_1(), example_1(), example_1(), example_2())
+async def main(): await asyncio.gather(example_1(), example_2())
 
+print("Running examples...")
 asyncio.run(main())
