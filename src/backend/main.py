@@ -3,18 +3,9 @@ from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
 
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=False,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_credentials=False, allow_methods=["*"], allow_headers=["*"])
 
 @app.get("/")
-def root():
-    return {"status": "ok", "health": "/api/health", "docs": "/docs"}
+def root(): return {"status": "ok"}
 
-@app.get("/api/health")
-def health():
-    return {"status": "ok"}
+print("SERVER | Server is online! 🟢")

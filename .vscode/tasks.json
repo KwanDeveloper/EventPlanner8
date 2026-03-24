@@ -10,7 +10,7 @@
         "-ExecutionPolicy",
         "Bypass",
         "-File",
-        "${workspaceFolder}\\.vscode\\start.ps1"
+        "${workspaceFolder}\\.vscode\\scripts\\start.ps1"
       ],
       "presentation": {
         "reveal": "never",
@@ -28,7 +28,7 @@
         "-ExecutionPolicy",
         "Bypass",
         "-File",
-        "${workspaceFolder}\\.vscode\\stop.ps1"
+        "${workspaceFolder}\\.vscode\\scripts\\stop.ps1"
       ],
       "presentation": {
         "reveal": "never",
