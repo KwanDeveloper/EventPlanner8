@@ -6,10 +6,9 @@ function OnboardingPage() {
 
   return (
     <div className="placeholder-page">
-      <button className="back-btn" onClick={() => navigate('/')}>← Back</button>
       <img src="/logo.png" alt="Event Planner" style={{ height: 48, marginBottom: 8 }} />
       <h1>Onboarding Coming Soon</h1>
-      <p>We're working on personalizing your experience. Check back soon!</p>
+      <p>We&apos;re working on personalizing your experience. Check back soon!</p>
       <button
         onClick={() => navigate('/dashboard')}
         style={{

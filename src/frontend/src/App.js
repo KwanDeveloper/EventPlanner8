@@ -8,9 +8,14 @@ import DashboardPage from './DashboardPage';
 import ProfilePage from './ProfilePage';
 import OnboardingPage from './OnboardingPage';
 import SiteNavbar from './SiteNavbar';
+import { getAuthSession } from './authSession';
 
 function Home() {
   const navigate = useNavigate();
+  const session = getAuthSession();
+
+  const primaryCtaLabel = session.signedIn ? 'Go to Dashboard →' : 'Get Started →';
+  const primaryCtaPath = session.signedIn ? '/dashboard' : '/signup';
 
   return (
     <div className="app">
@@ -26,7 +31,7 @@ function Home() {
           to try new things, event planners is the solution!
         </p>
         <div className="hero-buttons">
-          <button className="btn-primary" onClick={() => navigate('/signup')}>Get Started →</button>
+          <button className="btn-primary" onClick={() => navigate(primaryCtaPath)}>{primaryCtaLabel}</button>
           <button className="btn-secondary" onClick={() => navigate('/about')}>Learn More</button>
         </div>
 

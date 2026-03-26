@@ -12,7 +12,7 @@ function SignedInNavbar({ title, actionLabel, actionPath }) {
 
   return (
     <nav className="dashboard-navbar">
-      <div className="logo signed-in-logo">
+      <div className="logo signed-in-logo" onClick={() => navigate('/')} style={{ cursor: 'pointer' }}>
         <img src="/logo.png" alt="Event Planner" className="logo-icon" />
         <span className="logo-text">Event Planners</span>
       </div>

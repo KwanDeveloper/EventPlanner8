@@ -109,7 +109,7 @@ function HostRegistrationPage() {
           </form>
         ) : (
           <div className="success-box">
-            <span className="success-icon">OK</span>
+            <span className="success-icon">✅</span>
             <h2>Application Submitted!</h2>
             <p>Thanks, {`${form.firstName} ${form.lastName}`.trim()}! We&apos;ll review your application and reach out to <strong>{form.email}</strong> soon.</p>
             <button className="btn-secondary" onClick={() => navigate('/')}>Back to Home</button>

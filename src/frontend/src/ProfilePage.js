@@ -30,10 +30,6 @@ function ProfilePage() {
           <p>Signed in as <strong>{session.email}</strong>.</p>
           <p className="profile-note">This page is still work in progress.</p>
         </section>
-
-        <div className="profile-actions">
-          <button className="btn-primary" onClick={() => navigate('/dashboard')}>← Go Back</button>
-        </div>
       </main>
     </div>
   );

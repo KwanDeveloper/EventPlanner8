@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './SignupPage.css';
+import { setAuthSession } from './authSession';
 
 function SignupPage() {
   const navigate = useNavigate();
@@ -30,6 +31,7 @@ function SignupPage() {
       });
       const data = await res.json();
       if (data.success) {
+        setAuthSession(email, password);
         navigate(data.redirect || '/dashboard');
       } else {
         setError(data.message || 'Signup failed');
@@ -119,7 +121,7 @@ function SignupPage() {
           <div className="terms-row">
             <input type="checkbox" id="terms" required />
             <label htmlFor="terms">
-              I agree to the <span className="terms-link">Terms and Conditions</span>
+              I agree to the Terms and Conditions
             </label>
           </div>
 
