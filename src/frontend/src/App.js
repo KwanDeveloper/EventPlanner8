@@ -16,7 +16,7 @@ function Home() {
       {/* Navbar */}
       <nav className="navbar">
         <div className="logo">
-          <span className="logo-icon">🗓️</span>
+          <img src={require('./assets/EventPlannerIcon.png')} alt="Event Planner" className="logo-icon" />
           <span className="logo-text">Event Planners</span>
         </div>
         <div className="nav-buttons">
