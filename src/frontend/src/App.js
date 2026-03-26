@@ -7,6 +7,7 @@ import SignupPage from './SignupPage';
 import DashboardPage from './DashboardPage';
 import ProfilePage from './ProfilePage';
 import ForgotPasswordPage from './ForgotPasswordPage';
+import OnboardingPage from './OnboardingPage';
 
 function Home() {
   const navigate = useNavigate();
@@ -76,6 +77,7 @@ function App() {
         <Route path="/dashboard" element={<DashboardPage />} />
         <Route path="/profile" element={<ProfilePage />} />
         <Route path="/forgotpassword" element={<ForgotPasswordPage />} />
+        <Route path="/onboarding" element={<OnboardingPage />} />
       </Routes>
     </BrowserRouter>
   );
