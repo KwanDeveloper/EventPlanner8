@@ -2,42 +2,84 @@
   "version": "2.0.0",
   "tasks": [
     {
-      "label": "Start Frontend",
-      "type": "process",
-      "command": "powershell.exe",
-      "args": [
-        "-NoProfile",
-        "-ExecutionPolicy",
-        "Bypass",
-        "-File",
-        "${workspaceFolder}\\.vscode\\scripts\\start.ps1"
-      ],
+      "label": "Start Backend",
+      "type": "shell",
+      "windows": {
+        "command": "cd src/backend && ..\\..\\venv\\Scripts\\uvicorn.exe main:app --reload"
+      },
+      "osx": {
+        "command": "cd '${workspaceFolder}/src/backend' && '${workspaceFolder}/.venv/bin/uvicorn' main:app --reload"
+      },
+      "linux": {
+        "command": "cd '${workspaceFolder}/src/backend' && '${workspaceFolder}/.venv/bin/uvicorn' main:app --reload"
+      },
+      "isBackground": true,
       "presentation": {
-        "reveal": "never",
-        "focus": false,
+        "reveal": "always",
         "panel": "dedicated",
-        "showReuseMessage": false,
-        "close": true
+        "group": "app"
       },
       "problemMatcher": []
     },
     {
-      "label": "Stop Frontend",
-      "type": "process",
-      "command": "powershell.exe",
-      "args": [
-        "-NoProfile",
-        "-ExecutionPolicy",
-        "Bypass",
-        "-File",
-        "${workspaceFolder}\\.vscode\\scripts\\stop.ps1"
-      ],
+      "label": "Start Frontend",
+      "type": "shell",
+      "windows": {
+        "command": "powershell.exe",
+        "args": [
+          "-NoProfile",
+          "-ExecutionPolicy",
+          "Bypass",
+          "-File",
+          "${workspaceFolder}\\.vscode\\scripts\\start.ps1"
+        ]
+      },
+      "osx": {
+        "command": "cd '${workspaceFolder}/src/frontend' && PORT=3000 BROWSER=none npm start"
+      },
+      "linux": {
+        "command": "cd '${workspaceFolder}/src/frontend' && PORT=3000 BROWSER=none npm start"
+      },
+      "isBackground": true,
       "presentation": {
-        "reveal": "never",
-        "focus": false,
+        "reveal": "always",
         "panel": "dedicated",
-        "showReuseMessage": false,
-        "close": true
+        "group": "app"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Start App",
+      "dependsOn": ["Start Backend", "Start Frontend"],
+      "dependsOrder": "parallel",
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Stop App",
+      "type": "shell",
+      "windows": {
+        "command": "powershell.exe",
+        "args": [
+          "-NoProfile",
+          "-ExecutionPolicy",
+          "Bypass",
+          "-File",
+          "${workspaceFolder}\\.vscode\\scripts\\stop.ps1"
+        ]
+      },
+      "osx": {
+        "command": "kill $(lsof -ti:3000) 2>/dev/null; kill $(lsof -ti:8000) 2>/dev/null; echo 'Stopped.'"
+      },
+      "linux": {
+        "command": "kill $(lsof -ti:3000) 2>/dev/null; kill $(lsof -ti:8000) 2>/dev/null; echo 'Stopped.'"
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated"
       },
       "problemMatcher": []
     }
