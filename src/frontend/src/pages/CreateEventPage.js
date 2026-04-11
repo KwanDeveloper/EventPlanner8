@@ -198,7 +198,7 @@ function CreateEventPage() {
             <button type="submit" className="ce-btn-primary" disabled={loading}>
               {loading ? 'Publishing...' : 'Publish Event →'}
             </button>
-            <button type="button" className="ce-btn-secondary" onClick={() => navigate('/dashboard')}>
+            <button type="button" className="ce-btn-secondary" onClick={() => navigate('/my-events')}>
               Cancel
             </button>
           </div>
