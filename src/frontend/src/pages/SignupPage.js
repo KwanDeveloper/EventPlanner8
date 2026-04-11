@@ -1,7 +1,9 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import './SignupPage.css';
-import { setAuthSession, setUserRole, setUserName } from './authSession';
+import '../styles/SignupPage.css';
+import { setAuthSession, setOnboardingState, setUserRole, setUserName } from '../utils/authSession';
+
+const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 function SignupPage() {
   const navigate = useNavigate();
@@ -10,12 +12,39 @@ function SignupPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [agreedToTerms, setAgreedToTerms] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
+
+    if (!firstName.trim() || !lastName.trim() || !email.trim() || !password || !confirmPassword) {
+      setError('Please fill out all required fields');
+      return;
+    }
+
+    if (!EMAIL_PATTERN.test(email.trim())) {
+      setError('Please enter a valid email address');
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      setError('Passwords do not match');
+      return;
+    }
+
+    if (password.length < 8) {
+      setError('Password must be at least 8 characters');
+      return;
+    }
+
+    if (!agreedToTerms) {
+      setError('You must agree to the Terms and Conditions');
+      return;
+    }
+
     setLoading(true);
     try {
       const res = await fetch('http://localhost:8000/signup', {
@@ -32,9 +61,10 @@ function SignupPage() {
       const data = await res.json();
       if (data.success) {
         setAuthSession(email, password);
-        setUserRole('user');
-        setUserName(firstName, lastName);
-        navigate('/onboarding');
+        setUserRole(data.user?.role || 'user');
+        setUserName(data.user?.first_name || firstName, data.user?.last_name || lastName);
+        setOnboardingState(Boolean(data.user?.onboarding_complete));
+        navigate(data.redirect || '/onboarding');
       } else {
         setError(data.message || 'Signup failed');
       }
@@ -58,7 +88,7 @@ function SignupPage() {
 
         {error && <p className="signup-error">⚠ {error}</p>}
 
-        <form className="signup-form" onSubmit={handleSubmit}>
+        <form className="signup-form" onSubmit={handleSubmit} noValidate>
           <div className="form-row">
             <div className="form-group">
               <label htmlFor="firstName">First Name</label>
@@ -68,7 +98,6 @@ function SignupPage() {
                 placeholder="John"
                 value={firstName}
                 onChange={(e) => setFirstName(e.target.value)}
-                required
               />
             </div>
             <div className="form-group">
@@ -79,7 +108,6 @@ function SignupPage() {
                 placeholder="Doe"
                 value={lastName}
                 onChange={(e) => setLastName(e.target.value)}
-                required
               />
             </div>
           </div>
@@ -87,12 +115,11 @@ function SignupPage() {
           <div className="form-group">
             <label htmlFor="email">Email</label>
             <input
-              type="email"
+              type="text"
               id="email"
               placeholder="you@example.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              required
             />
           </div>
 
@@ -104,7 +131,6 @@ function SignupPage() {
               placeholder="••••••••"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              required
             />
           </div>
 
@@ -116,12 +142,16 @@ function SignupPage() {
               placeholder="••••••••"
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
-              required
             />
           </div>
 
           <div className="terms-row">
-            <input type="checkbox" id="terms" required />
+            <input
+              type="checkbox"
+              id="terms"
+              checked={agreedToTerms}
+              onChange={(e) => setAgreedToTerms(e.target.checked)}
+            />
             <label htmlFor="terms">
               I agree to the Terms and Conditions
             </label>
@@ -142,3 +172,5 @@ function SignupPage() {
 }
 
 export default SignupPage;
+
+

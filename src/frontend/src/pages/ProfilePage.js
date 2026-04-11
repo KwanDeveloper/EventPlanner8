@@ -1,10 +1,10 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import './OnboardingPage.css';
-import './ProfilePage.css';
-import './SignupPage.css';
-import SignedInNavbar from './SignedInNavbar';
-import { getAuthSession, clearAuthSession, setAuthSession, setUserName } from './authSession';
+import '../styles/OnboardingPage.css';
+import '../styles/ProfilePage.css';
+import '../styles/SignupPage.css';
+import SignedInNavbar from '../components/SignedInNavbar';
+import { getAuthSession, clearAuthSession, setAuthSession, setOnboardingState, setUserName, setUserRole } from '../utils/authSession';
 
 function ProfilePage() {
   const navigate = useNavigate();
@@ -12,10 +12,12 @@ function ProfilePage() {
 
   const [firstName, setFirstName] = useState(session.firstName || '');
   const [lastName, setLastName] = useState(session.lastName || '');
+  const [role, setRole] = useState(session.role || 'user');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [interests, setInterests] = useState('');
   const [eventType, setEventType] = useState(null);
+  const [initialProfile, setInitialProfile] = useState(null);
   const [loading, setLoading] = useState(true);
   const [saved, setSaved] = useState(false);
   const [error, setError] = useState('');
@@ -31,15 +33,59 @@ function ProfilePage() {
       .then((r) => r.json())
       .then((data) => {
         if (data.success) {
-          setFirstName(data.first_name || session.firstName || '');
-          setLastName(data.last_name || session.lastName || '');
-          setInterests(data.interests || '');
-          setEventType(data.event_type || null);
+          const profileState = {
+            firstName: data.first_name || session.firstName || '',
+            lastName: data.last_name || session.lastName || '',
+            role: data.role || session.role || 'user',
+            interests: data.interests || '',
+            eventType: data.event_type || null,
+          };
+
+          setFirstName(profileState.firstName);
+          setLastName(profileState.lastName);
+          setRole(profileState.role);
+          setInterests(profileState.interests);
+          setEventType(profileState.eventType);
+          setUserRole(profileState.role);
+          setInitialProfile(profileState);
+          setOnboardingState(Boolean(data.onboarding_complete));
         }
       })
       .catch(() => {})
       .finally(() => setLoading(false));
   }, [navigate, session.email, session.firstName, session.lastName, session.signedIn]);
+
+  const hasUnsavedChanges = Boolean(
+    initialProfile && (
+      firstName !== initialProfile.firstName ||
+      lastName !== initialProfile.lastName ||
+      interests !== initialProfile.interests ||
+      eventType !== initialProfile.eventType ||
+      ((password || confirmPassword) && confirmPassword && (password !== '' || confirmPassword !== ''))
+    )
+  );
+
+  const confirmLeave = () => {
+    if (!hasUnsavedChanges) {
+      return true;
+    }
+
+    return window.confirm('You have unsaved profile changes. Leave without saving?');
+  };
+
+  useEffect(() => {
+    const handleBeforeUnload = (event) => {
+      if (!hasUnsavedChanges) {
+        return;
+      }
+
+      event.preventDefault();
+      event.returnValue = '';
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+  }, [hasUnsavedChanges]);
 
   if (!session.signedIn) return null;
 
@@ -78,7 +124,19 @@ function ProfilePage() {
       const data = await res.json();
 
       if (data.success) {
+        const nextProfile = {
+          firstName: firstName.trim(),
+          lastName: lastName.trim(),
+          role,
+          interests,
+          eventType,
+        };
+
         setUserName(firstName.trim(), lastName.trim());
+        setUserRole(data.user?.role || role);
+        setOnboardingState(Boolean(data.user?.onboarding_complete));
+        setInitialProfile(nextProfile);
+        setRole(data.user?.role || role);
 
         if (password) {
           setAuthSession(session.email, password);
@@ -118,7 +176,13 @@ function ProfilePage() {
 
   return (
     <div className="onboarding">
-      <SignedInNavbar title="Profile" actionLabel="Dashboard" actionPath="/dashboard" />
+      <SignedInNavbar
+        title="Profile"
+        actionLabel="Dashboard"
+        actionPath="/dashboard"
+        onBeforeNavigate={confirmLeave}
+        onBeforeLogout={confirmLeave}
+      />
 
       <main className="onboarding-content">
         <div className="onboarding-header">
@@ -130,8 +194,9 @@ function ProfilePage() {
           {!loading && (
             <div className="profile-header-actions">
               {error && <p className="signup-error profile-error-banner">⚠ {error}</p>}
+              {saved && <p className="profile-success-banner">✓ Changes have been saved.</p>}
               <button className="save-btn" onClick={handleSave}>
-                {saved ? '✓ Saved!' : 'Save Changes'}
+                Save Changes
               </button>
             </div>
           )}
@@ -150,6 +215,16 @@ function ProfilePage() {
                 Want to update the name or password tied to your account?
               </p>
               <div className="signup-form profile-edit-form">
+                <div className="form-group">
+                  <label htmlFor="profileRole">Role</label>
+                  <input
+                    type="text"
+                    id="profileRole"
+                    value={role}
+                    disabled
+                    className="locked-input"
+                  />
+                </div>
                 <div className="form-row">
                   <div className="form-group">
                     <label htmlFor="profileFirstName">First Name</label>
@@ -249,7 +324,10 @@ function ProfilePage() {
                 Register as an event leader to get access to hosting tools, verified visibility,
                 and a dedicated organizer dashboard.
               </p>
-              <button className="event-leader-btn" onClick={() => navigate('/hostregistration')}>
+              <button
+                className="event-leader-btn"
+                onClick={() => navigate('/host-registeration', { state: { from: 'profile' } })}
+              >
                 Register as an Event Leader →
               </button>
             </div>
@@ -282,3 +360,5 @@ function ProfilePage() {
 }
 
 export default ProfilePage;
+
+

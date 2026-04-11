@@ -29,6 +29,10 @@ export function setUserName(firstName, lastName) {
   setCookie('user_last_name', lastName);
 }
 
+export function setOnboardingState(onboardingComplete) {
+  setCookie('onboarding_complete', onboardingComplete ? 'true' : 'false', 365);
+}
+
 export function getAuthSession() {
   const email = getCookie('session_email');
   const password = getCookie('session_password');
@@ -50,14 +54,12 @@ export function getAuthSession() {
   };
 }
 
-export function setOnboardingComplete() {
-  setCookie('onboarding_complete', 'true', 365);
-}
-
 export function clearAuthSession() {
   clearCookie('session_email');
   clearCookie('session_password');
   clearCookie('user_role');
   clearCookie('user_first_name');
   clearCookie('user_last_name');
+  clearCookie('onboarding_complete');
+  clearCookie('onboarding_complete_email');
 }

@@ -172,6 +172,10 @@
   background: #2e3280;
 }
 
+.onboarding-error-banner {
+  margin-bottom: 0;
+}
+
 /* Actions row */
 .onboarding-actions {
   display: flex;

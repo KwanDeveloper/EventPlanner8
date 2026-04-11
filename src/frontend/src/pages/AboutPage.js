@@ -1,7 +1,7 @@
 import { useNavigate } from 'react-router-dom';
-import './App.css';
-import './AboutPage.css';
-import SiteNavbar from './SiteNavbar';
+import '../styles/App.css';
+import '../styles/AboutPage.css';
+import SiteNavbar from '../components/SiteNavbar';
 
 function AboutPage() {
   const navigate = useNavigate();
@@ -62,3 +62,5 @@ function AboutPage() {
 }
 
 export default AboutPage;
+
+

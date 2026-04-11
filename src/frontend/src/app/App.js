@@ -1,17 +1,18 @@
 import { BrowserRouter, Routes, Route, useNavigate } from 'react-router-dom';
-import './App.css';
-import LoginPage from './LoginPage';
-import HostRegistrationPage from './HostRegistrationPage';
-import AboutPage from './AboutPage';
-import SignupPage from './SignupPage';
-import DashboardPage from './DashboardPage';
-import ProfilePage from './ProfilePage';
-import OnboardingPage from './OnboardingPage';
-import AdminDashboard from './AdminDashboard';
-import CreateEventPage from './CreateEventPage';
-import MyEventsPage from './MyEventsPage';
-import SiteNavbar from './SiteNavbar';
-import { getAuthSession } from './authSession';
+import '../styles/App.css';
+import LoginPage from '../pages/LoginPage';
+import HostRegistrationPage from '../pages/HostRegistrationPage';
+import AboutPage from '../pages/AboutPage';
+import SignupPage from '../pages/SignupPage';
+import DashboardPage from '../pages/DashboardPage';
+import ProfilePage from '../pages/ProfilePage';
+import OnboardingPage from '../pages/OnboardingPage';
+import AdminDashboard from '../pages/AdminDashboard';
+import CreateEventPage from '../pages/CreateEventPage';
+import EditEventPage from '../pages/EditEventPage';
+import MyEventsPage from '../pages/MyEventsPage';
+import SiteNavbar from '../components/SiteNavbar';
+import { getAuthSession } from '../utils/authSession';
 
 function Home() {
   const navigate = useNavigate();
@@ -66,14 +67,17 @@ function App() {
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<LoginPage />} />
+        <Route path="/host-registeration" element={<HostRegistrationPage />} />
         <Route path="/hostregistration" element={<HostRegistrationPage />} />
         <Route path="/about" element={<AboutPage />} />
         <Route path="/signup" element={<SignupPage />} />
         <Route path="/dashboard" element={<DashboardPage />} />
         <Route path="/profile" element={<ProfilePage />} />
         <Route path="/onboarding" element={<OnboardingPage />} />
+        <Route path="/admin" element={<AdminDashboard />} />
         <Route path="/event-registrations" element={<AdminDashboard />} />
         <Route path="/create-event" element={<CreateEventPage />} />
+        <Route path="/edit-event/:eventId" element={<EditEventPage />} />
         <Route path="/my-events" element={<MyEventsPage />} />
       </Routes>
     </BrowserRouter>

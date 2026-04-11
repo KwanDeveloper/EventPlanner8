@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import './MyEventsPage.css';
-import SignedInNavbar from './SignedInNavbar';
-import { getAuthSession } from './authSession';
+import '../styles/MyEventsPage.css';
+import SignedInNavbar from '../components/SignedInNavbar';
+import { getAuthSession } from '../utils/authSession';
 
 function MyEventsPage() {
   const navigate = useNavigate();
@@ -25,8 +25,33 @@ function MyEventsPage() {
 
   const formatDate = (dateStr) => {
     if (!dateStr) return '';
-    const d = new Date(dateStr + 'T00:00:00');
-    return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    const parsed = new Date(dateStr);
+    if (!Number.isNaN(parsed.getTime())) {
+      return parsed.toLocaleString('en-US', {
+        month: 'short',
+        day: 'numeric',
+        year: 'numeric',
+        hour: 'numeric',
+        minute: '2-digit',
+      });
+    }
+
+    const dateOnly = new Date(`${dateStr}T00:00:00`);
+    if (!Number.isNaN(dateOnly.getTime())) {
+      return dateOnly.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    }
+
+    return dateStr;
+  };
+
+  const formatEventWindow = (start, end) => {
+    const startLabel = formatDate(start);
+    const endLabel = formatDate(end);
+    return { startLabel, endLabel };
+  };
+
+  const handleEditEvent = (eventId) => {
+    navigate(`/edit-event/${encodeURIComponent(eventId)}`);
   };
 
   return (
@@ -56,8 +81,30 @@ function MyEventsPage() {
           <div className="my-events-grid">
             {events.map((event) => (
               <div className="my-event-tile" key={event.id}>
-                <h3 className="my-event-title">{event.title}</h3>
-                <p className="my-event-meta">{event.host} &mdash; {formatDate(event.date)}</p>
+                <div className="my-event-title-row">
+                  <h3 className="my-event-title">{event.title}</h3>
+                  <button
+                    type="button"
+                    className="my-event-menu-btn"
+                    onClick={() => handleEditEvent(event.id)}
+                    aria-label={`Edit ${event.title}`}
+                    title="Edit event"
+                  >
+                    ...
+                  </button>
+                </div>
+                <div className="my-event-meta-group">
+                  <p className="my-event-meta">{event.host}</p>
+                  {(() => {
+                    const { startLabel, endLabel } = formatEventWindow(event.date, event.end_date);
+                    return (
+                      <>
+                        {startLabel && <p className="my-event-date"><span>Starts:</span> {startLabel}</p>}
+                        {endLabel && <p className="my-event-date"><span>Ends:</span> {endLabel}</p>}
+                      </>
+                    );
+                  })()}
+                </div>
                 <p className="my-event-location">📍 {event.location}</p>
                 <p className="my-event-desc">{event.description}</p>
               </div>
@@ -70,3 +117,5 @@ function MyEventsPage() {
 }
 
 export default MyEventsPage;
+
+

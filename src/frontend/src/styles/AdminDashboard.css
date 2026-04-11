@@ -96,6 +96,82 @@
   white-space: pre;
 }
 
+.admin-role-section {
+  margin-bottom: 28px;
+}
+
+.admin-role-heading {
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: #1a1a2e;
+  margin-bottom: 14px;
+}
+
+.admin-empty-inline {
+  color: #888;
+  font-size: 0.92rem;
+  margin: 0 0 18px;
+}
+
+.admin-user-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.admin-user-row {
+  background: rgba(255, 255, 255, 0.68);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border-radius: 18px;
+  padding: 18px 22px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+}
+
+.admin-user-left {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-width: 0;
+}
+
+.admin-user-avatar {
+  width: 52px;
+  height: 52px;
+  font-size: 1rem;
+}
+
+.admin-user-name {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #1a1a2e;
+  margin: 0;
+}
+
+.admin-user-email {
+  font-size: 0.84rem;
+  color: #777;
+  margin: 4px 0 0;
+}
+
+.admin-user-org {
+  font-size: 0.86rem;
+  color: #555;
+  margin: 4px 0 0;
+}
+
+.admin-user-tag {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #3b3fa0;
+  background: rgba(59, 63, 160, 0.08);
+  padding: 8px 12px;
+  border-radius: 999px;
+}
+
 /* Tile grid */
 .request-grid {
   display: grid;
@@ -200,8 +276,7 @@
 }
 
 .deny-btn {
-  flex: 1;
-  padding: 10px;
+  padding: 10px 18px;
   border-radius: 50px;
   border: 1.5px solid #c0392b;
   background: none;
@@ -213,7 +288,7 @@
   transition: background 0.18s, color 0.18s;
 }
 
-.deny-btn:hover {
-  background: #c0392b;
-  color: #fff;
+.request-actions .approve-btn,
+.request-actions .deny-btn {
+  flex: 1;
 }

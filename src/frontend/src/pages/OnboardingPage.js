@@ -1,31 +1,60 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import './OnboardingPage.css';
-import './ProfilePage.css';
-import SignedInNavbar from './SignedInNavbar';
-import { setOnboardingComplete, getAuthSession } from './authSession';
+import '../styles/OnboardingPage.css';
+import '../styles/ProfilePage.css';
+import '../styles/SignupPage.css';
+import SignedInNavbar from '../components/SignedInNavbar';
+import { getAuthSession, setOnboardingState } from '../utils/authSession';
 
 function OnboardingPage() {
   const navigate = useNavigate();
   const session = getAuthSession();
   const [interests, setInterests] = useState('');
-  const [eventType, setEventType] = useState(null); // 'on-campus' | 'off-campus' | 'both'
+  const [eventType, setEventType] = useState(null);
   const [saved, setSaved] = useState(false);
   const [error, setError] = useState('');
+
+  useEffect(() => {
+    if (!session.signedIn) {
+      navigate('/login');
+      return;
+    }
+
+    if (session.onboardingComplete) {
+      navigate('/dashboard');
+    }
+  }, [navigate, session.onboardingComplete, session.signedIn]);
+
+  if (!session.signedIn || session.onboardingComplete) {
+    return null;
+  }
 
   const handleSave = async () => {
     if (!eventType) {
       setError('Please select an event preference.');
       return;
     }
+
     setError('');
+    let data;
+
     try {
       const res = await fetch('http://localhost:8000/profile', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: session.email, interests, event_type: eventType }),
+        body: JSON.stringify({
+          email: session.email,
+          first_name: session.firstName,
+          last_name: session.lastName,
+          interests,
+          event_type: eventType,
+          password: '',
+          confirm_password: '',
+          onboarding_complete: true,
+        }),
       });
-      const data = await res.json();
+      data = await res.json();
+
       if (!data.success) {
         setError(data.message || 'Failed to save.');
         return;
@@ -34,7 +63,8 @@ function OnboardingPage() {
       setError('Could not connect to server.');
       return;
     }
-    setOnboardingComplete();
+
+    setOnboardingState(Boolean(data.user?.onboarding_complete));
     setSaved(true);
     setTimeout(() => navigate('/dashboard'), 1000);
   };
@@ -44,21 +74,18 @@ function OnboardingPage() {
       <SignedInNavbar title="Onboarding" />
 
       <main className="onboarding-content">
-
-        {/* Header */}
         <div className="onboarding-header">
           <h1 className="onboarding-heading">Onboarding</h1>
           <p className="onboarding-sub">
-            Help us personalize your experience. Tell us what you're into and where
-            you like to explore — we'll use it to surface events that are actually
+            Help us personalize your experience. Tell us what you&apos;re into and where
+            you like to explore, we&apos;ll use it to surface events that are actually
             worth your time.
           </p>
         </div>
 
-        {/* Interests Section */}
         <div className="onboarding-card">
           <div className="card-label-row">
-            <span className="card-icon-bubble icon-blue">✨</span>
+            <span className="card-icon-bubble icon-blue" aria-hidden="true">✨</span>
             <h2 className="card-section-title">Your Interests</h2>
           </div>
           <p className="card-section-sub">
@@ -75,10 +102,9 @@ function OnboardingPage() {
           <p className="interests-char-count">{interests.length} / 256</p>
         </div>
 
-        {/* Event Location Preference */}
         <div className="onboarding-card">
           <div className="card-label-row">
-            <span className="card-icon-bubble icon-pink">📍</span>
+            <span className="card-icon-bubble icon-pink" aria-hidden="true">📍</span>
             <h2 className="card-section-title">Event Preferences</h2>
           </div>
           <p className="card-section-sub">
@@ -106,10 +132,9 @@ function OnboardingPage() {
           </div>
         </div>
 
-        {/* Event Leader Section */}
         <div className="onboarding-card event-leader-card">
           <div className="card-label-row">
-            <span className="card-icon-bubble icon-green">🎯</span>
+            <span className="card-icon-bubble icon-green" aria-hidden="true">🎯</span>
             <h2 className="card-section-title">Become an Event Leader</h2>
           </div>
           <p className="card-section-sub">
@@ -119,24 +144,24 @@ function OnboardingPage() {
           </p>
           <button
             className="event-leader-btn"
-            onClick={() => navigate('/hostregistration')}
+            onClick={() => navigate('/host-registeration', { state: { from: 'onboarding' } })}
           >
             Register as an Event Leader →
           </button>
         </div>
 
-        {error && <p className="profile-error">{error}</p>}
+        {error && <p className="signup-error onboarding-error-banner">⚠ {error}</p>}
 
-        {/* Save Button */}
         <div className="onboarding-actions">
           <button className="save-btn" onClick={handleSave}>
             {saved ? '✓ Saved!' : 'Save Preferences'}
           </button>
         </div>
-
       </main>
     </div>
   );
 }
 
 export default OnboardingPage;
+
+

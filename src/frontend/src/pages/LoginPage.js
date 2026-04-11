@@ -1,7 +1,9 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import './LoginPage.css';
-import { getAuthSession, setAuthSession, setUserRole, setUserName } from './authSession';
+import '../styles/LoginPage.css';
+import { getAuthSession, setAuthSession, setOnboardingState, setUserRole, setUserName } from '../utils/authSession';
+
+const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 function LoginPage() {
   const navigate = useNavigate();
@@ -20,6 +22,17 @@ function LoginPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
+
+    if (!email.trim() || !password) {
+      setError('Email and password are required');
+      return;
+    }
+
+    if (!EMAIL_PATTERN.test(email.trim())) {
+      setError('Please enter a valid email address');
+      return;
+    }
+
     setLoading(true);
     try {
       const res = await fetch('http://localhost:8000/login', {
@@ -32,8 +45,8 @@ function LoginPage() {
         setAuthSession(email, password);
         setUserRole(data.user?.role || 'user');
         setUserName(data.user?.first_name || '', data.user?.last_name || '');
-        const session = getAuthSession();
-        navigate(session.onboardingComplete ? '/dashboard' : '/onboarding');
+        setOnboardingState(Boolean(data.user?.onboarding_complete));
+        navigate(data.redirect || (data.user?.onboarding_complete ? '/dashboard' : '/onboarding'));
       } else {
         setError(data.message || 'Login failed');
       }
@@ -57,16 +70,15 @@ function LoginPage() {
 
         {error && <p className="login-error">⚠ {error}</p>}
 
-        <form className="login-form" onSubmit={handleSubmit}>
+        <form className="login-form" onSubmit={handleSubmit} noValidate>
           <div className="form-group">
             <label htmlFor="email">Email</label>
             <input
-              type="email"
+              type="text"
               id="email"
               placeholder="you@example.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              required
             />
           </div>
           <div className="form-group">
@@ -79,7 +91,6 @@ function LoginPage() {
               placeholder="••••••••"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              required
             />
           </div>
           <button type="submit" className="login-btn" disabled={loading}>
@@ -97,3 +108,5 @@ function LoginPage() {
 }
 
 export default LoginPage;
+
+

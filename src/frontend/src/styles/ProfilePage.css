@@ -27,6 +27,19 @@
   border-color: #ddd;
 }
 
+.locked-input {
+  background: rgba(245, 245, 245, 0.95);
+  border-style: dashed;
+  color: #b3b3b3;
+  cursor: not-allowed;
+  opacity: 1;
+}
+
+.locked-input:disabled {
+  -webkit-text-fill-color: #b3b3b3;
+  opacity: 1;
+}
+
 /* Delete account card */
 .delete-account-card {
   background: rgba(255, 232, 232, 0.72);
@@ -44,6 +57,20 @@
 
 .profile-error-banner {
   margin-bottom: 0;
+}
+
+.profile-success-banner {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(47, 138, 87, 0.1);
+  border: 1px solid rgba(47, 138, 87, 0.28);
+  color: #2f8a57;
+  font-size: 0.88rem;
+  font-weight: 600;
+  border-radius: 10px;
+  padding: 10px 14px;
+  margin: 0;
 }
 
 .delete-card-sub {
@@ -106,6 +133,11 @@
 
   .profile-error-banner {
     width: 100%;
+  }
+
+  .profile-success-banner {
+    width: 100%;
+    justify-content: center;
   }
 
   .profile-edit-form .form-row {

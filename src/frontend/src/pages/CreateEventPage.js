@@ -1,17 +1,24 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import './CreateEventPage.css';
-import SignedInNavbar from './SignedInNavbar';
-import { getAuthSession } from './authSession';
+import '../styles/CreateEventPage.css';
+import SignedInNavbar from '../components/SignedInNavbar';
+import { getAuthSession } from '../utils/authSession';
 
 function CreateEventPage() {
   const navigate = useNavigate();
   const session = getAuthSession();
+  const getMinDateTime = () => {
+    const now = new Date();
+    const pad = (value) => String(value).padStart(2, '0');
+    return `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}T${pad(now.getHours())}:${pad(now.getMinutes())}`;
+  };
+  const getEndMinDateTime = () => form.date || getMinDateTime();
 
   const [form, setForm] = useState({
     title: '',
     host: session.fullName || session.email,
     date: '',
+    end_date: '',
     location: '',
     description: '',
   });
@@ -26,6 +33,27 @@ function CreateEventPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
+
+    if (!form.title.trim() || !form.host.trim() || !form.date.trim() || !form.location.trim() || !form.description.trim()) {
+      setError('Please fill out all required fields.');
+      return;
+    }
+
+    if (!form.end_date.trim()) {
+      setError('Please fill out all required fields.');
+      return;
+    }
+
+    if (new Date(form.date) < new Date()) {
+      setError('Event date and time cannot be in the past.');
+      return;
+    }
+
+    if (new Date(form.end_date) < new Date(form.date)) {
+      setError('End date and time cannot be before the start.');
+      return;
+    }
+
     setLoading(true);
     try {
       const res = await fetch('http://localhost:8000/events', {
@@ -36,6 +64,7 @@ function CreateEventPage() {
           title: form.title,
           host: form.host,
           date: form.date,
+          end_date: form.end_date,
           location: form.location,
           description: form.description,
         }),
@@ -63,8 +92,8 @@ function CreateEventPage() {
             <h2>Event Created!</h2>
             <p><strong>{form.title}</strong> has been published and is now live.</p>
             <div className="create-event-success-actions">
-              <button className="ce-btn-primary" onClick={() => navigate('/dashboard')}>Go to Dashboard</button>
-              <button className="ce-btn-secondary" onClick={() => { setSubmitted(false); setForm({ title: '', host: session.fullName || session.email, date: '', location: '', description: '' }); }}>
+              <button className="ce-btn-primary" onClick={() => navigate('/my-events')}>View My Events</button>
+              <button className="ce-btn-secondary" onClick={() => { setSubmitted(false); setForm({ title: '', host: session.fullName || session.email, date: '', end_date: '', location: '', description: '' }); }}>
                 Create Another
               </button>
             </div>
@@ -80,15 +109,15 @@ function CreateEventPage() {
 
       <main className="create-event-content">
         <div className="create-event-header">
-          <h1 className="create-event-heading">Event Creation</h1>
+          <h1 className="create-event-heading">Create Event</h1>
           <p className="create-event-sub">
-            Every great event starts with a story. Fill in the details below and
-            we'll match it with the right audience — putting your event in front
-            of the people who'll actually show up.
+          Every great event starts with a story. Fill in the details below and
+          we'll match it with the right audience, putting your event in front
+          of the people who'll actually show up.
           </p>
         </div>
 
-        <form className="create-event-form" onSubmit={handleSubmit}>
+        <form className="create-event-form" onSubmit={handleSubmit} noValidate>
           <div className="ce-field">
             <label>Event Title</label>
             <input
@@ -101,29 +130,43 @@ function CreateEventPage() {
             />
           </div>
 
-          <div className="ce-row">
-            <div className="ce-field">
-              <label>Host</label>
-              <input
-                type="text"
-                name="host"
-                value={form.host}
-                onChange={handleChange}
-                required
-              />
-            </div>
-
-            <div className="ce-field">
-              <label>Date</label>
-              <input
-                type="date"
-                name="date"
-                value={form.date}
-                onChange={handleChange}
-                required
-              />
-            </div>
+          <div className="ce-field">
+            <label>Host</label>
+            <input
+              type="text"
+              name="host"
+              placeholder="e.g. John Doe, Jane Doe, Gator Events Club"
+              value={form.host}
+              onChange={handleChange}
+              required
+            />
           </div>
+
+          <div className="ce-field">
+            <label>Start Date and Time</label>
+            <input
+              type="datetime-local"
+              name="date"
+              min={getMinDateTime()}
+              value={form.date}
+              onChange={handleChange}
+              required
+            />
+          </div>
+
+          {form.date && (
+            <div className="ce-field">
+              <label>End Date and Time</label>
+              <input
+                type="datetime-local"
+                name="end_date"
+                min={getEndMinDateTime()}
+                value={form.end_date}
+                onChange={handleChange}
+                required
+              />
+            </div>
+          )}
 
           <div className="ce-field">
             <label>Location</label>
@@ -142,7 +185,7 @@ function CreateEventPage() {
             <textarea
               name="description"
               rows={5}
-              placeholder="Tell people what to expect — the vibe, the agenda, who it's for, and why they shouldn't miss it."
+              placeholder="Tell people what to expect, the vibe, the agenda, who it's for, and why they shouldn't miss it."
               value={form.description}
               onChange={handleChange}
               required
@@ -166,3 +209,5 @@ function CreateEventPage() {
 }
 
 export default CreateEventPage;
+
+

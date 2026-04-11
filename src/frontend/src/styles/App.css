@@ -32,6 +32,16 @@
   z-index: 100;
 }
 
+.site-navbar-title {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 1.2rem;
+  font-weight: 800;
+  color: #1a1a2e;
+  letter-spacing: 0.01em;
+}
+
 .logo {
   display: flex;
   align-items: center;

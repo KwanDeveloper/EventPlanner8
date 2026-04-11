@@ -1,8 +1,8 @@
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import './DashboardPage.css';
-import SignedInNavbar from './SignedInNavbar';
-import { getAuthSession } from './authSession';
+import '../styles/DashboardPage.css';
+import SignedInNavbar from '../components/SignedInNavbar';
+import { getAuthSession } from '../utils/authSession';
 
 // TODO: replace with real data from backend
 const MOCK_EVENTS = [
@@ -88,7 +88,17 @@ function DashboardPage() {
         </section>
 
         <section className="events-section">
-          <h2 className="events-section-title">Events For You</h2>
+          <div className="events-section-header">
+            <h2 className="events-section-title events-section-title-with-badge">
+              <span>Events For You</span>
+              <span className="events-ai-badge" tabIndex={0} aria-label="AI suggested events">
+                <img src="/star.png" alt="" className="events-ai-star" />
+                <span className="events-ai-tooltip">
+                  AI-personalized picks based on your preferences.
+                </span>
+              </span>
+            </h2>
+          </div>
           <div className="events-grid">
             {MOCK_EVENTS.slice(0, 3).map((event) => (
               <EventTile key={event.id} event={event} />
@@ -97,7 +107,9 @@ function DashboardPage() {
         </section>
 
         <section className="events-section">
-          <h2 className="events-section-title">All Events</h2>
+          <div className="events-section-header">
+            <h2 className="events-section-title">All Events</h2>
+          </div>
           <div className="events-grid">
             {MOCK_EVENTS.map((event) => (
               <EventTile key={event.id} event={event} />
@@ -111,3 +123,5 @@ function DashboardPage() {
 }
 
 export default DashboardPage;
+
+
