@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useEffect, useRef, useState } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import '../styles/OnboardingPage.css';
 import '../styles/ProfilePage.css';
 import '../styles/SignupPage.css';
@@ -9,6 +9,7 @@ import { applyCharacterLimit, getEffectiveCharacterCount } from '../utils/textIn
 
 function ProfilePage() {
   const navigate = useNavigate();
+  const location = useLocation();
   const session = getAuthSession();
   const NAME_MAX_LENGTH = 64;
   const PASSWORD_MAX_LENGTH = 256;
@@ -54,6 +55,7 @@ function ProfilePage() {
   const [saved, setSaved] = useState(false);
   const [error, setError] = useState('');
   const [confirmDelete, setConfirmDelete] = useState(false);
+  const interestsRef = useRef(null);
 
   const handleInterestsChange = (value) => {
     const nextValue = applyCharacterLimit(value, INTERESTS_MAX_LENGTH, { multiline: true });
@@ -104,6 +106,37 @@ function ProfilePage() {
       .catch(() => {})
       .finally(() => setLoading(false));
   }, [navigate, session.email, session.firstName, session.lastName, session.signedIn]);
+
+  useEffect(() => {
+    if (loading) {
+      return;
+    }
+
+    const params = new URLSearchParams(location.search);
+    if (params.get('focus') !== 'interests') {
+      return;
+    }
+
+    const centerInterestsField = () => {
+      const node = interestsRef.current;
+      if (!node) {
+        return;
+      }
+
+      const navOffset = 120;
+      const rect = node.getBoundingClientRect();
+      const absoluteTop = window.scrollY + rect.top;
+      const targetTop = Math.max(0, absoluteTop - ((window.innerHeight - rect.height) / 2) - navOffset);
+
+      window.scrollTo({ top: targetTop, behavior: 'smooth' });
+      node.focus({ preventScroll: true });
+    };
+
+    window.requestAnimationFrame(() => {
+      centerInterestsField();
+      window.setTimeout(centerInterestsField, 220);
+    });
+  }, [loading, location.search]);
 
   const hasUnsavedChanges = Boolean(
     initialProfile && (
@@ -359,6 +392,8 @@ function ProfilePage() {
                 What topics, activities, or themes get you excited? This helps power your AI-personalized event suggestions.
               </p>
               <textarea
+                id="profileInterests"
+                ref={interestsRef}
                 className="interests-input"
                 placeholder="e.g. live music, hackathons, cooking, film screenings..."
                 value={interests}

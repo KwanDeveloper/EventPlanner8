@@ -4,7 +4,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
 from modules.user import sign_up, sign_in, get_profile, update_profile, delete_account, submit_host_request, get_host_requests, approve_host_request, deny_host_request, get_admin_users, remove_hoster
-from modules.events import create_event, get_events_by_host, get_all_events, get_event, update_event, delete_event
+from modules.events import create_event, get_events_by_host, get_all_events, get_recommended_events, get_event, get_event_attendees, attend_event, unattend_event, update_event, delete_event
 
 # Variables
 app = FastAPI()
@@ -60,6 +60,9 @@ class UpdateProfileRequest(BaseModel):
     onboarding_complete: bool | None = None
 
 class RemoveRequest(BaseModel):
+    email: str
+
+class AttendRequest(BaseModel):
     email: str
 
 # Functions
@@ -182,10 +185,38 @@ def events_get_all():
     except ValueError as e:
         return {"success": False, "message": str(e)}
 
+@app.get("/events/recommended")
+async def events_get_recommended(email: str):
+    try:
+        return await get_recommended_events(email)
+    except ValueError as e:
+        return {"success": False, "message": str(e)}
+
 @app.get("/events/{event_id}")
 def events_get_one(event_id: str):
     try:
         return get_event(event_id)
+    except ValueError as e:
+        return {"success": False, "message": str(e)}
+
+@app.get("/events/{event_id}/attendees")
+def events_get_attendees(event_id: str):
+    try:
+        return get_event_attendees(event_id)
+    except ValueError as e:
+        return {"success": False, "message": str(e)}
+
+@app.post("/events/{event_id}/attend")
+def events_attend(event_id: str, body: AttendRequest):
+    try:
+        return attend_event(event_id, body.email)
+    except ValueError as e:
+        return {"success": False, "message": str(e)}
+
+@app.delete("/events/{event_id}/attend")
+def events_unattend(event_id: str, email: str):
+    try:
+        return unattend_event(event_id, email)
     except ValueError as e:
         return {"success": False, "message": str(e)}
 

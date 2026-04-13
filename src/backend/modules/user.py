@@ -51,6 +51,7 @@ def _user_template(first_name: str, last_name: str, email: str, password: str, r
         "interests": "",
         "event_type": "",
         "onboarding_complete": False,
+        "attending_event_ids": [],
     }
 
 def _user_response(user: dict, email: str):
@@ -60,6 +61,7 @@ def _user_response(user: dict, email: str):
         "email": email,
         "role": user.get("role", "user"),
         "onboarding_complete": bool(user.get("onboarding_complete", False)),
+        "attending_event_ids": list(user.get("attending_event_ids", []) or []),
     }
 
 def sign_up(first_name: str, last_name: str, email: str, password: str, confirm_password: str):
@@ -103,6 +105,10 @@ def get_profile(email: str):
     user, _ = users_database.get_document(email)
     if user is None: return {"success": False, "message": "User not found"}
 
+    if "attending_event_ids" not in user or not isinstance(user.get("attending_event_ids"), list):
+        user["attending_event_ids"] = []
+        users_database.set_document(email, user)
+
     return {
         "success": True,
         "first_name": user.get("first_name", ""),
@@ -112,6 +118,7 @@ def get_profile(email: str):
         "interests": user.get("interests", ""),
         "event_type": user.get("event_type", ""),
         "onboarding_complete": bool(user.get("onboarding_complete", False)),
+        "attending_event_ids": list(user.get("attending_event_ids", []) or []),
     }
 
 def submit_host_request(email: str, first_name: str, last_name: str, organization: str, message: str):
@@ -234,6 +241,8 @@ def update_profile(
     user["last_name"] = last_name
     user["interests"] = interests
     user["event_type"] = event_type
+    if "attending_event_ids" not in user or not isinstance(user.get("attending_event_ids"), list):
+        user["attending_event_ids"] = []
 
     if onboarding_complete is not None: user["onboarding_complete"] = bool(onboarding_complete)
 

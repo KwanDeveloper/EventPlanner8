@@ -5,11 +5,51 @@ import '../styles/DashboardPage.css';
 import SignedInNavbar from '../components/SignedInNavbar';
 import { getAuthSession } from '../utils/authSession';
 
+const avatarGradients = [
+  ['#4f7ed8', '#8a7ae6'],
+  ['#3b8ea5', '#6ec6ca'],
+  ['#d46a6a', '#f0a6a6'],
+  ['#5b9bd5', '#7a89f0'],
+  ['#3d7f6f', '#77b28c'],
+  ['#9a6ad6', '#d58edc'],
+  ['#4f6bd8', '#d07ca6'],
+  ['#4d8f5f', '#b0c96e'],
+];
+
+const getGradientForUser = (attendee) => {
+  const seed = attendee.email || attendee.firstName || attendee.lastName || 'user';
+  let hash = 0;
+  for (let index = 0; index < seed.length; index += 1) {
+    hash = ((hash << 5) - hash) + seed.charCodeAt(index);
+    hash |= 0;
+  }
+
+  const [start, end] = avatarGradients[Math.abs(hash) % avatarGradients.length];
+  return `linear-gradient(135deg, ${start}, ${end})`;
+};
+
+function getAvatarInitials(firstName, lastName, email) {
+  const nameParts = `${String(firstName || '').trim()} ${String(lastName || '').trim()}`
+    .trim()
+    .split(/\s+/)
+    .filter(Boolean);
+  const nameInitials = nameParts.length >= 2
+    ? `${nameParts[0][0] || ''}${nameParts[nameParts.length - 1][0] || ''}`
+    : (nameParts[0] || '').slice(0, 2);
+  const emailInitial = String(email || '').trim().charAt(0);
+  return (nameInitials || emailInitial || 'U').toUpperCase();
+}
+
 function EventDetailsPage() {
   const navigate = useNavigate();
   const { eventId } = useParams();
   const session = getAuthSession();
   const [event, setEvent] = useState(null);
+  const [attendees, setAttendees] = useState([]);
+  const [attendeeCount, setAttendeeCount] = useState(0);
+  const [ownerProfile, setOwnerProfile] = useState(null);
+  const [isAttending, setIsAttending] = useState(false);
+  const [attendLoading, setAttendLoading] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
@@ -35,7 +75,63 @@ function EventDetailsPage() {
       })
       .catch(() => setError('Could not connect to server.'))
       .finally(() => setLoading(false));
+
+    fetch(`http://localhost:8000/profile?email=${encodeURIComponent(session.email)}`)
+      .then((r) => r.json())
+      .then((data) => {
+        if (data.success) {
+          setIsAttending(Array.isArray(data.attending_event_ids) && data.attending_event_ids.includes(eventId));
+        }
+      })
+      .catch(() => {});
   }, [eventId, navigate, session.onboardingComplete, session.signedIn]);
+
+  useEffect(() => {
+    if (!event?.id) {
+      return;
+    }
+
+    fetch(`http://localhost:8000/events/${encodeURIComponent(event.id)}/attendees`)
+      .then((r) => r.json())
+      .then((data) => {
+        if (data.success) {
+          setAttendees(data.attendees || []);
+          setAttendeeCount(Number(data.attendee_count) || 0);
+        }
+      })
+      .catch(() => {});
+  }, [event?.id]);
+
+  useEffect(() => {
+    if (!event?.owner_email) {
+      setOwnerProfile(null);
+      return;
+    }
+
+    if (event.owner_email === session.email) {
+      setOwnerProfile({
+        first_name: session.firstName || '',
+        last_name: session.lastName || '',
+      });
+      return;
+    }
+
+    fetch(`http://localhost:8000/profile?email=${encodeURIComponent(event.owner_email)}`)
+      .then((r) => r.json())
+      .then((data) => {
+        if (data.success) {
+          setOwnerProfile({
+            first_name: data.first_name || '',
+            last_name: data.last_name || '',
+          });
+        } else {
+          setOwnerProfile(null);
+        }
+      })
+      .catch(() => {
+        setOwnerProfile(null);
+      });
+  }, [event?.owner_email, session.email, session.firstName, session.lastName]);
 
   const formatDate = (dateStr) => {
     if (!dateStr) return '';
@@ -87,15 +183,118 @@ function EventDetailsPage() {
     return labels.join(', ');
   };
 
+  const requestNotificationPermission = async () => {
+    if (!('Notification' in window)) {
+      return 'unsupported';
+    }
+
+    if (Notification.permission === 'granted' || Notification.permission === 'denied') {
+      return Notification.permission;
+    }
+
+    return Notification.requestPermission();
+  };
+
+  const sendLiveNotification = () => {
+    if (!('Notification' in window) || Notification.permission !== 'granted' || !event) {
+      return;
+    }
+
+    const startTime = event.date ? new Date(event.date) : null;
+    if (!startTime || Number.isNaN(startTime.getTime())) {
+      return;
+    }
+
+    const delay = startTime.getTime() - Date.now();
+    if (delay <= 0) {
+      return;
+    }
+
+    window.clearTimeout(window.__eventLiveNotifyTimer);
+    window.__eventLiveNotifyTimer = window.setTimeout(() => {
+      if (Notification.permission === 'granted') {
+        new Notification(`${event.title} is starting now`, {
+          body: 'The event is beginning.',
+        });
+      }
+    }, delay);
+  };
+
+  useEffect(() => {
+    if (isAttending && event?.date) {
+      sendLiveNotification();
+    }
+  }, [isAttending, event?.date]);
+
+  const toggleAttendance = async () => {
+    if (!event?.id || attendLoading) {
+      return;
+    }
+
+    setAttendLoading(true);
+    try {
+      const url = isAttending
+        ? `http://localhost:8000/events/${encodeURIComponent(event.id)}/attend?email=${encodeURIComponent(session.email)}`
+        : `http://localhost:8000/events/${encodeURIComponent(event.id)}/attend`;
+      const response = await fetch(url, isAttending ? { method: 'DELETE' } : {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: session.email }),
+      });
+      const payload = await response.json();
+      if (!payload.success) {
+        return;
+      }
+
+      if (!isAttending) {
+        await requestNotificationPermission();
+      }
+
+      setIsAttending(Boolean(payload.attending));
+      setAttendeeCount(Number(payload.attendee_count) || 0);
+      fetch(`http://localhost:8000/events/${encodeURIComponent(event.id)}/attendees`)
+        .then((r) => r.json())
+        .then((data) => {
+          if (data.success) {
+            setAttendees(data.attendees || []);
+            setAttendeeCount(Number(data.attendee_count) || 0);
+          }
+        })
+        .catch(() => {});
+    } catch {
+      // ignore
+    } finally {
+      setAttendLoading(false);
+    }
+  };
+
+  const isEventOwner = Boolean(event && event.owner_email === session.email);
+  const isOwnerOrAdmin = Boolean(event && (session.role === 'admin' || isEventOwner));
+
   if (!session.signedIn || !session.onboardingComplete) {
     return null;
   }
 
   const live = event ? isEventLive(event.date, event.end_date) : false;
   const campusLabel = event ? formatLocationTypes(event.location_types) : '';
-  const canEditEvent = Boolean(
-    event && (session.role === 'admin' || event.owner_email === session.email)
-  );
+  const canEditEvent = isOwnerOrAdmin;
+  const canAttendEvent = !isEventOwner;
+  const visibleAttendees = [
+    ...(event?.owner_email
+      ? [{
+          email: event.owner_email,
+          first_name: event.owner_email === session.email
+            ? session.firstName || ''
+            : ownerProfile?.first_name || '',
+          last_name: event.owner_email === session.email
+            ? session.lastName || ''
+            : ownerProfile?.last_name || '',
+          role: 'host',
+        }]
+      : []),
+    ...attendees.filter((attendee) => attendee.email !== event?.owner_email),
+  ];
+  const visibleAttendeeCount = Math.max(Number(attendeeCount || 0), visibleAttendees.length);
 
   return (
     <div className="event-details-page">
@@ -183,6 +382,58 @@ function EventDetailsPage() {
                   </button>
                 )}
               </aside>
+
+              <section className="event-details-attendance-card">
+                <div className="event-details-attendance-header event-details-attendance-header--card">
+                  <p className="event-details-section-label">Attending</p>
+                  {canAttendEvent && (
+                    <button
+                      type="button"
+                      className={`event-details-attend-btn ${isAttending ? 'event-details-attend-btn--filled' : ''}`}
+                      onClick={toggleAttendance}
+                      disabled={attendLoading}
+                    >
+                      {isAttending ? 'Unattend' : 'Attend'}
+                    </button>
+                  )}
+                </div>
+                <div className="event-details-attendance-row">
+                  <p className="event-details-meta-value">
+                    {visibleAttendeeCount} {visibleAttendeeCount === 1 ? 'person is attending!' : 'people are attending!'}
+                  </p>
+                </div>
+                {isOwnerOrAdmin && visibleAttendees.length > 0 && (
+                  <div className="event-details-attendee-list">
+                    {visibleAttendees.map((attendee) => {
+                      const fullName = `${attendee.first_name || ''} ${attendee.last_name || ''}`.trim();
+                      const displayName = fullName || (attendee.role === 'host' ? event.host : attendee.email);
+                      const roleLabel = attendee.role === 'host'
+                        ? 'HOST'
+                        : attendee.role === 'admin'
+                          ? 'ADMIN'
+                          : '';
+                      return (
+                        <div key={attendee.email} className="event-details-attendee-row">
+                        <span
+                          className="event-details-attendee-avatar"
+                          style={{ background: getGradientForUser(attendee) }}
+                          aria-hidden="true"
+                        >
+                          {getAvatarInitials(attendee.first_name, attendee.last_name, attendee.email)}
+                        </span>
+                          <div className="event-details-attendee-text">
+                            <div className="event-details-attendee-name-row">
+                              <p>{displayName}</p>
+                              {roleLabel && <span className="event-details-attendee-role">{roleLabel}</span>}
+                            </div>
+                            <span>{attendee.email}</span>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </section>
             </section>
           </>
         ) : null}
