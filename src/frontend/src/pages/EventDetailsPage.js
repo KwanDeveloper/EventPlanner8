@@ -369,7 +369,7 @@ function EventDetailsPage() {
 
       <main className="event-details-content">
         <button type="button" className="event-back-btn" onClick={() => navigate('/dashboard')}>
-          {'\u2190'} Back
+          ← Back
         </button>
 
         {loading ? (
@@ -412,7 +412,7 @@ function EventDetailsPage() {
                 <div className="event-details-meta-block">
                   <p className="event-details-section-label">Location</p>
                   <p className="event-details-location">
-                    {'\u{1F4CD}'} {event.location || 'Location not listed'}
+                    {'📍'} {event.location || 'Location not listed'}
                     {locationEnabled && (
                       <span className="event-location-distance">
                         {' '}
@@ -492,12 +492,9 @@ function EventDetailsPage() {
                   <div className="event-details-attendee-list">
                     {visibleAttendees.map((attendee) => {
                       const fullName = `${attendee.first_name || ''} ${attendee.last_name || ''}`.trim();
-                      const displayName = fullName || (attendee.role === 'host' ? event.host : attendee.email);
-                      const roleLabel = attendee.role === 'host'
-                        ? 'HOST'
-                        : attendee.role === 'admin'
-                          ? 'ADMIN'
-                          : '';
+                      const isEventOwnerAttendee = attendee.email === event.owner_email;
+                      const displayName = fullName || (isEventOwnerAttendee ? event.host : attendee.email);
+                      const roleLabel = isEventOwnerAttendee ? 'HOST' : '';
                       return (
                         <div key={attendee.email} className="event-details-attendee-row">
                         <span

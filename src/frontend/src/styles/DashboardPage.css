@@ -904,6 +904,10 @@
   animation: events-ai-spin 1s linear infinite;
 }
 
+.events-ai-star--activate {
+  animation: events-ai-spin 0.7s ease-out 1;
+}
+
 .events-ai-tooltip {
   position: absolute;
   top: 50%;

@@ -198,7 +198,7 @@ function EventTile({ event, attending, hosting, userLocation, locationEnabled })
       )}
       {event.location && (
         <p className="event-location">
-          {'\u{1F4CD}'} {event.location}
+          {'📍'} {event.location}
           {locationEnabled && (
             <span className="event-location-distance">
               {' '}
@@ -232,6 +232,7 @@ function DashboardPage() {
   const [suggestedEvents, setSuggestedEvents] = useState([]);
   const [userEventType, setUserEventType] = useState([]);
   const [userInterests, setUserInterests] = useState('');
+  const [diversity, setDiversity] = useState(0.2);
   const [attendingEventIds, setAttendingEventIds] = useState([]);
   const [loadingProfile, setLoadingProfile] = useState(true);
   const [loadingEvents, setLoadingEvents] = useState(true);
@@ -242,7 +243,9 @@ function DashboardPage() {
   const [locationLoading, setLocationLoading] = useState(false);
   const [userLocation, setUserLocation] = useState(null);
   const [locationUpdatedAt, setLocationUpdatedAt] = useState(null);
+  const [aiBadgeJustActivated, setAiBadgeJustActivated] = useState(false);
   const sortMenuRef = useRef(null);
+  const previousHasActiveAiSuggestionsRef = useRef(false);
 
   const sortOptions = [
     { value: 'start-time', label: 'Start Time' },
@@ -251,6 +254,11 @@ function DashboardPage() {
     { value: 'distance', label: 'Distance' },
     { value: 'attending', label: 'Attending' },
   ];
+  const getAiScoreThreshold = (value) => {
+    const normalized = Math.max(-1, Math.min(1, Number(value)));
+    const threshold = 0.15 + (normalized * 0.25);
+    return Math.max(0.1, Math.min(0.4, threshold));
+  };
 
   useEffect(() => {
     if (!session.signedIn) {
@@ -276,6 +284,7 @@ function DashboardPage() {
         if (data.success) {
           setUserEventType(Array.isArray(data.event_type) ? data.event_type : []);
           setUserInterests((data.interests || '').trim());
+          setDiversity(Number.isFinite(Number(data.diversity)) ? Number(data.diversity) : 0.2);
           setAttendingEventIds(Array.isArray(data.attending_event_ids) ? data.attending_event_ids : []);
         }
       })
@@ -369,12 +378,6 @@ function DashboardPage() {
 
     return () => window.clearInterval(intervalId);
   }, [locationEnabled]);
-
-  if (!session.signedIn || !session.onboardingComplete) {
-    return null;
-  }
-
-  const displayName = session.fullName || session.firstName || 'User';
 
   const compareStartTime = (firstEvent, secondEvent) => {
     const firstTime = new Date(firstEvent.date || 0).getTime();
@@ -499,6 +502,35 @@ function DashboardPage() {
   const displayedSuggestedEvents = hasAiInterests
     ? [...suggestedEvents, ...supplementalTagSuggestedEvents].slice(0, 5)
     : tagSuggestedEvents;
+  const aiScoreThreshold = getAiScoreThreshold(diversity);
+  const hasActiveAiSuggestions = displayedSuggestedEvents.some((event) => (
+    Boolean(event?.ai_ranked) && Number(event?.ai_score) > aiScoreThreshold
+  ));
+
+  useEffect(() => {
+    if (hasActiveAiSuggestions && !previousHasActiveAiSuggestionsRef.current) {
+      setAiBadgeJustActivated(true);
+      const timeoutId = window.setTimeout(() => {
+        setAiBadgeJustActivated(false);
+      }, 700);
+      previousHasActiveAiSuggestionsRef.current = true;
+      return () => window.clearTimeout(timeoutId);
+    }
+
+    previousHasActiveAiSuggestionsRef.current = hasActiveAiSuggestions;
+    if (!hasActiveAiSuggestions) {
+      setAiBadgeJustActivated(false);
+    }
+
+    return undefined;
+  }, [hasActiveAiSuggestions]);
+
+  if (!session.signedIn || !session.onboardingComplete) {
+    return null;
+  }
+
+  const displayName = session.fullName || session.firstName || 'User';
+
   const showSuggestedSection = !loadingProfile && events.length > 0 && (
     hasAiInterests
       ? (loadingSuggestedEvents || displayedSuggestedEvents.length > 0)
@@ -560,16 +592,20 @@ function DashboardPage() {
                 <span>Events For You</span>
                 <button
                   type="button"
-                  className={`events-ai-badge ${hasAiInterests ? '' : 'events-ai-badge--inactive'}`}
-                  aria-label={hasAiInterests ? 'AI suggested events' : 'Update your interests'}
+                  className={`events-ai-badge ${hasActiveAiSuggestions ? '' : 'events-ai-badge--inactive'}`}
+                  aria-label={hasActiveAiSuggestions ? 'AI suggested events' : 'Update your interests'}
                   onClick={() => navigate('/profile?focus=interests#profileInterests')}
                 >
                   <span className="events-ai-badge-burst" aria-hidden="true" />
-                  <img src="/star.png" alt="" className="events-ai-star" />
-                  <span className={`events-ai-tooltip ${hasAiInterests ? '' : 'events-ai-tooltip--info'}`}>
-                    {hasAiInterests
+                  <img
+                    src="/star.png"
+                    alt=""
+                    className={`events-ai-star ${aiBadgeJustActivated ? 'events-ai-star--activate' : ''}`}
+                  />
+                  <span className={`events-ai-tooltip ${hasActiveAiSuggestions ? '' : 'events-ai-tooltip--info'}`}>
+                    {hasActiveAiSuggestions
                       ? 'AI-personalized picks based on your preferences.'
-                      : 'Update your interests to enable AI-personalized picks.'}
+                      : 'Update your interests to improve AI-personalized picks.'}
                   </span>
                 </button>
               </h2>

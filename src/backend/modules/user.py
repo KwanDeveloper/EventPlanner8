@@ -138,10 +138,19 @@ def get_profile(email: str):
         "role": user.get("role", "user"),
         "organization": user.get("organization", ""),
         "interests": user.get("interests", ""),
+        "diversity": _normalize_diversity(user.get("diversity", 0.2)),
         "event_type": list(user.get("event_type", []) or []),
         "onboarding_complete": bool(user.get("onboarding_complete", False)),
         "attending_event_ids": list(user.get("attending_event_ids", []) or []),
     }
+
+def _normalize_diversity(value):
+    try:
+        normalized = float(value)
+    except (TypeError, ValueError):
+        normalized = 0.2
+
+    return max(-1.0, min(1.0, normalized))
 
 def submit_host_request(email: str, first_name: str, last_name: str, organization: str, message: str):
     email = _validate_email(email)
@@ -254,6 +263,7 @@ def update_profile(
     first_name: str,
     last_name: str,
     interests: str,
+    diversity,
     event_type,
     password: str = "",
     confirm_password: str = "",
@@ -263,6 +273,7 @@ def update_profile(
     first_name = _validate_name(first_name, "first_name")
     last_name = _validate_name(last_name, "last_name")
     interests = _normalize_interests(interests)
+    diversity = _normalize_diversity(diversity)
 
     event_type = _normalize_event_types(event_type)
     if not event_type: return {"success": False, "message": "Invalid preference"}
@@ -278,6 +289,7 @@ def update_profile(
     user["first_name"] = first_name
     user["last_name"] = last_name
     user["interests"] = interests
+    user["diversity"] = diversity
     user["event_type"] = event_type
     if "attending_event_ids" not in user or not isinstance(user.get("attending_event_ids"), list):
         user["attending_event_ids"] = []
