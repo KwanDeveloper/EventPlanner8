@@ -20,43 +20,43 @@ Visit our deployment demo at [https://eventplanner8.koyeb.app/](https://eventpla
 
 ## Screenshots
 
-![Home page](docs/1.png)
+![Home page](docs/images/1.png)
 *Figure 1. Home page.*
 
-![Sign up page](docs/2.png)
+![Sign up page](docs/images/2.png)
 *Figure 2. Sign up page.*
 
-![Log in page](docs/3.png)
+![Log in page](docs/images/3.png)
 *Figure 3. Log in page.*
 
-![Onboarding page](docs/4.png)
+![Onboarding page](docs/images/4.png)
 *Figure 4. Onboarding page.*
 
-![Dashboard page](docs/5.png)
+![Dashboard page](docs/images/5.png)
 *Figure 5. Dashboard page.*
 
-![Event details page](docs/6.png)
+![Event details page](docs/images/6.png)
 *Figure 6. Event details page.*
 
-![Report event page](docs/7.png)
+![Report event page](docs/images/7.png)
 *Figure 7. Report event page.*
 
-![Profile page](docs/8.png)
+![Profile page](docs/images/8.png)
 *Figure 8. Profile page.*
 
-![Host registration page](docs/9.png)
+![Host registration page](docs/images/9.png)
 *Figure 9. Host registration page.*
 
-![Create event page](docs/10.png)
+![Create event page](docs/images/10.png)
 *Figure 10. Create event page.*
 
-![My events page](docs/11.png)
+![My events page](docs/images/11.png)
 *Figure 11. My events page.*
 
-![Admin dashboard page](docs/12.png)
+![Admin dashboard page](docs/images/12.png)
 *Figure 12. Admin dashboard page.*
 
-![Admin dashboard reports page](docs/13.png)
+![Admin dashboard reports page](docs/images/13.png)
 *Figure 13. Admin dashboard reports page.*
 
 ---
@@ -84,9 +84,9 @@ The classification engine allows automatically moderating innapropriate event co
 Both engines support batching, allowing efficient processing with multiple inputs in one request.
 
 Libraries used:
-- [Hugging Face Transformers](https://huggingface.co/docs/transformers/index): model loading and tokenizer utilities
+- [Hugging Face Transformers](https://huggingface.co/docs/images/transformers/index): model loading and tokenizer utilities
 - [ONNX Runtime](https://onnxruntime.ai/): optimized inference engine for running the model
-- [Optimum ONNX](https://huggingface.co/docs/optimum/index): Hugging Face integration for ONNX models
+- [Optimum ONNX](https://huggingface.co/docs/images/optimum/index): Hugging Face integration for ONNX models
 - [NumPy](https://numpy.org/): numerical computation for vector operations
 - [Gradio](https://www.gradio.app/): interface used to host the Hugging Face Space API
 
