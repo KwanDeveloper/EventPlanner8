@@ -3,8 +3,8 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
-from modules.user import sign_up, sign_in, get_profile, update_profile, delete_account, submit_host_request, get_host_requests, approve_host_request, deny_host_request, get_admin_users, banish_hoster
-from modules.events import create_event, get_events_by_host, get_all_events, get_event, update_event, delete_event
+from modules.user import sign_up, sign_in, get_profile, update_profile, delete_account, submit_host_request, get_host_requests, approve_host_request, deny_host_request, get_admin_users, remove_hoster
+from modules.events import create_event, get_events_by_host, get_all_events, get_recommended_events, get_event, get_event_attendees, attend_event, unattend_event, update_event, delete_event, report_event, get_event_report, get_admin_report_summaries, get_admin_report_detail, resolve_admin_report, remove_reported_event
 
 # Variables
 app = FastAPI()
@@ -36,7 +36,9 @@ class CreateEventRequest(BaseModel):
     date: str
     end_date: str
     location: str
+    location_types: list[str]
     description: str
+    coordinates: list[float] | None = None
 
 class UpdateEventRequest(BaseModel):
     owner_email: str
@@ -45,20 +47,29 @@ class UpdateEventRequest(BaseModel):
     date: str
     end_date: str
     location: str
+    location_types: list[str]
     description: str
+    coordinates: list[float] | None = None
 
 class UpdateProfileRequest(BaseModel):
     email: str
     first_name: str
     last_name: str
     interests: str
-    event_type: str
+    event_type: list[str] | str
     password: str = ""
     confirm_password: str = ""
     onboarding_complete: bool | None = None
 
-class BanishRequest(BaseModel):
+class RemoveRequest(BaseModel):
     email: str
+
+class AttendRequest(BaseModel):
+    email: str
+
+class ReportEventRequest(BaseModel):
+    reporter_email: str
+    reason: str
 
 # Functions
 @app.get("/")
@@ -113,10 +124,10 @@ def admin_deny(email: str):
     except ValueError as e:
         return {"success": False, "message": str(e)}
 
-@app.post("/admin/banish")
-def admin_banish(body: BanishRequest):
+@app.post("/admin/remove")
+def admin_remove(body: RemoveRequest):
     try:
-        return banish_hoster(body.email)
+        return remove_hoster(body.email)
     except ValueError as e:
         return {"success": False, "message": str(e)}
 
@@ -153,7 +164,17 @@ def profile_update(body: UpdateProfileRequest):
 @app.post("/events")
 def events_create(body: CreateEventRequest):
     try:
-        return create_event(body.owner_email, body.title, body.host, body.date, body.end_date, body.location, body.description)
+        return create_event(
+            body.owner_email,
+            body.title,
+            body.host,
+            body.date,
+            body.end_date,
+            body.location,
+            body.location_types,
+            body.description,
+            body.coordinates,
+        )
     except ValueError as e:
         return {"success": False, "message": str(e)}
 
@@ -171,6 +192,13 @@ def events_get_all():
     except ValueError as e:
         return {"success": False, "message": str(e)}
 
+@app.get("/events/recommended")
+async def events_get_recommended(email: str):
+    try:
+        return await get_recommended_events(email)
+    except ValueError as e:
+        return {"success": False, "message": str(e)}
+
 @app.get("/events/{event_id}")
 def events_get_one(event_id: str):
     try:
@@ -178,10 +206,42 @@ def events_get_one(event_id: str):
     except ValueError as e:
         return {"success": False, "message": str(e)}
 
+@app.get("/events/{event_id}/attendees")
+def events_get_attendees(event_id: str):
+    try:
+        return get_event_attendees(event_id)
+    except ValueError as e:
+        return {"success": False, "message": str(e)}
+
+@app.post("/events/{event_id}/attend")
+def events_attend(event_id: str, body: AttendRequest):
+    try:
+        return attend_event(event_id, body.email)
+    except ValueError as e:
+        return {"success": False, "message": str(e)}
+
+@app.delete("/events/{event_id}/attend")
+def events_unattend(event_id: str, email: str):
+    try:
+        return unattend_event(event_id, email)
+    except ValueError as e:
+        return {"success": False, "message": str(e)}
+
 @app.put("/events/{event_id}")
 def events_update(event_id: str, body: UpdateEventRequest):
     try:
-        return update_event(event_id, body.owner_email, body.title, body.host, body.date, body.end_date, body.location, body.description)
+        return update_event(
+            event_id,
+            body.owner_email,
+            body.title,
+            body.host,
+            body.date,
+            body.end_date,
+            body.location,
+            body.location_types,
+            body.description,
+            body.coordinates,
+        )
     except ValueError as e:
         return {"success": False, "message": str(e)}
 
@@ -189,6 +249,55 @@ def events_update(event_id: str, body: UpdateEventRequest):
 def events_delete(event_id: str, owner_email: str):
     try:
         return delete_event(event_id, owner_email)
+    except ValueError as e:
+        return {"success": False, "message": str(e)}
+
+@app.post("/events/{event_id}/report")
+def events_report(event_id: str, body: ReportEventRequest):
+    try:
+        return report_event(event_id, body.reporter_email, body.reason)
+    except ValueError as e:
+        return {"success": False, "message": str(e)}
+
+@app.get("/events/{event_id}/report")
+def events_report_status(event_id: str, reporter_email: str):
+    try:
+        return get_event_report(event_id, reporter_email)
+    except ValueError as e:
+        return {"success": False, "message": str(e)}
+
+@app.get("/admin/reports")
+def admin_reports(email: str):
+    try:
+        return get_admin_report_summaries(email)
+    except ValueError as e:
+        return {"success": False, "message": str(e)}
+
+@app.get("/admin/reports/{event_id}")
+def admin_report_detail(event_id: str, email: str):
+    try:
+        return get_admin_report_detail(email, event_id)
+    except ValueError as e:
+        return {"success": False, "message": str(e)}
+
+@app.post("/admin/reports/{event_id}/resolve")
+def admin_report_resolve(event_id: str, body: RemoveRequest):
+    try:
+        return resolve_admin_report(body.email, event_id)
+    except ValueError as e:
+        return {"success": False, "message": str(e)}
+
+@app.post("/admin/reports/{event_id}/remove-event")
+def admin_report_remove_event(event_id: str, body: RemoveRequest):
+    try:
+        return remove_reported_event(body.email, event_id, remove_hoster=False)
+    except ValueError as e:
+        return {"success": False, "message": str(e)}
+
+@app.post("/admin/reports/{event_id}/remove-event-hoster")
+def admin_report_remove_event_hoster(event_id: str, body: RemoveRequest):
+    try:
+        return remove_reported_event(body.email, event_id, remove_hoster=True)
     except ValueError as e:
         return {"success": False, "message": str(e)}
 

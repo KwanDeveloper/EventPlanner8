@@ -5,11 +5,13 @@ import HostRegistrationPage from '../pages/HostRegistrationPage';
 import AboutPage from '../pages/AboutPage';
 import SignupPage from '../pages/SignupPage';
 import DashboardPage from '../pages/DashboardPage';
+import EventDetailsPage from '../pages/EventDetailsPage';
 import ProfilePage from '../pages/ProfilePage';
 import OnboardingPage from '../pages/OnboardingPage';
 import AdminDashboard from '../pages/AdminDashboard';
 import CreateEventPage from '../pages/CreateEventPage';
 import EditEventPage from '../pages/EditEventPage';
+import ReportEventPage from '../pages/ReportEventPage';
 import MyEventsPage from '../pages/MyEventsPage';
 import SiteNavbar from '../components/SiteNavbar';
 import { getAuthSession } from '../utils/authSession';
@@ -32,7 +34,7 @@ function Home() {
         </h1>
         <p className="hero-sub">
           Whether you are trying to get more involved this year or just looking
-          to try new things, event planners is the solution!
+          to try new things, <strong>EventPlanner8</strong> is the solution!
         </p>
         <div className="hero-buttons">
           <button className="btn-primary" onClick={() => navigate(primaryCtaPath)}>{primaryCtaLabel}</button>
@@ -72,12 +74,14 @@ function App() {
         <Route path="/about" element={<AboutPage />} />
         <Route path="/signup" element={<SignupPage />} />
         <Route path="/dashboard" element={<DashboardPage />} />
+        <Route path="/dashboard/:eventId" element={<EventDetailsPage />} />
         <Route path="/profile" element={<ProfilePage />} />
         <Route path="/onboarding" element={<OnboardingPage />} />
         <Route path="/admin" element={<AdminDashboard />} />
         <Route path="/event-registrations" element={<AdminDashboard />} />
         <Route path="/create-event" element={<CreateEventPage />} />
         <Route path="/edit-event/:eventId" element={<EditEventPage />} />
+        <Route path="/report-event/:eventId" element={<ReportEventPage />} />
         <Route path="/my-events" element={<MyEventsPage />} />
       </Routes>
     </BrowserRouter>

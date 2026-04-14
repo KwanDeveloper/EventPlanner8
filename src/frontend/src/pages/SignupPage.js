@@ -2,8 +2,11 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import '../styles/SignupPage.css';
 import { setAuthSession, setOnboardingState, setUserRole, setUserName } from '../utils/authSession';
+import { applyCharacterLimit, normalizeEmailInput } from '../utils/textInput';
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const NAME_MAX_LENGTH = 64;
+const PASSWORD_MAX_LENGTH = 256;
 
 function SignupPage() {
   const navigate = useNavigate();
@@ -12,9 +15,18 @@ function SignupPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [agreedToTerms, setAgreedToTerms] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+
+  const handleNameChange = (setter, value) => {
+    const nextValue = applyCharacterLimit(value, NAME_MAX_LENGTH);
+    if (nextValue !== null) {
+      setter(nextValue);
+    }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -80,8 +92,8 @@ function SignupPage() {
       <div className="signup-card">
         <button className="back-btn" onClick={() => navigate('/')}>← Back</button>
         <div className="signup-logo">
-          <img src="/logo.png" alt="Event Planner" className="signup-logo-icon" />
-          <span className="signup-logo-text">Event Planners</span>
+          <img src="/logo.png" alt="EventPlanner8" className="signup-logo-icon" />
+          <span className="signup-logo-text">EventPlanner8</span>
         </div>
         <h2 className="signup-heading">Create an account</h2>
         <p className="signup-sub">Join the community today</p>
@@ -97,7 +109,7 @@ function SignupPage() {
                 id="firstName"
                 placeholder="John"
                 value={firstName}
-                onChange={(e) => setFirstName(e.target.value)}
+                onChange={(e) => handleNameChange(setFirstName, e.target.value)}
               />
             </div>
             <div className="form-group">
@@ -107,7 +119,7 @@ function SignupPage() {
                 id="lastName"
                 placeholder="Doe"
                 value={lastName}
-                onChange={(e) => setLastName(e.target.value)}
+                onChange={(e) => handleNameChange(setLastName, e.target.value)}
               />
             </div>
           </div>
@@ -119,41 +131,68 @@ function SignupPage() {
               id="email"
               placeholder="you@example.com"
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              onChange={(e) => setEmail(normalizeEmailInput(e.target.value))}
             />
           </div>
 
           <div className="form-group">
-            <label htmlFor="password">Password</label>
+            <div className="password-label-row">
+              <label htmlFor="password">Password</label>
+              {password && (
+                <button
+                  type="button"
+                  className="password-inline-action"
+                  onClick={() => setShowPassword((current) => !current)}
+                >
+                  {showPassword ? 'Hide password' : 'Show password'}
+                </button>
+              )}
+            </div>
             <input
-              type="password"
+              type={showPassword ? 'text' : 'password'}
               id="password"
               placeholder="••••••••"
               value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              onChange={(e) => setPassword(e.target.value.slice(0, PASSWORD_MAX_LENGTH))}
             />
           </div>
 
           <div className="form-group">
-            <label htmlFor="confirmPassword">Confirm Password</label>
+            <div className="password-label-row">
+              <label htmlFor="confirmPassword">Confirm Password</label>
+              {confirmPassword && (
+                <button
+                  type="button"
+                  className="password-inline-action"
+                  onClick={() => setShowConfirmPassword((current) => !current)}
+                >
+                  {showConfirmPassword ? 'Hide password' : 'Show password'}
+                </button>
+              )}
+            </div>
             <input
-              type="password"
+              type={showConfirmPassword ? 'text' : 'password'}
               id="confirmPassword"
               placeholder="••••••••"
               value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
+              onChange={(e) => setConfirmPassword(e.target.value.slice(0, PASSWORD_MAX_LENGTH))}
             />
           </div>
 
           <div className="terms-row">
-            <input
-              type="checkbox"
-              id="terms"
-              checked={agreedToTerms}
-              onChange={(e) => setAgreedToTerms(e.target.checked)}
-            />
-            <label htmlFor="terms">
-              I agree to the Terms and Conditions
+            <label className="terms-checkbox" htmlFor="terms">
+              <input
+                type="checkbox"
+                id="terms"
+                checked={agreedToTerms}
+                onChange={(e) => setAgreedToTerms(e.target.checked)}
+              />
+              <span className="terms-checkbox-box" aria-hidden="true">
+                <span className="terms-checkbox-check" />
+              </span>
+              <span className="terms-checkbox-text">
+                I agree to the Terms and Conditions
+              </span>
             </label>
           </div>
 
