@@ -1,4 +1,6 @@
-FROM node:22-bookworm-slim AS frontend-builder
+FROM node:20-bookworm-slim AS frontend-builder
+
+ENV CI=false
 
 WORKDIR /app/src/frontend
 COPY src/frontend/package.json src/frontend/package-lock.json ./

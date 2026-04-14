@@ -4,6 +4,8 @@
 
 Whether you're trying to get more involved this year or just looking to try new things, **EventPlanner8** is the solution. Our platform connects users with local events tailored to their interests, powered by personalized recommendations and a secure, verified host ecosystem.
 
+Visit our deployment demo at [https://eventplanner8.koyeb.app/](https://eventplanner8.koyeb.app/).
+
 ---
 
 ## Features
