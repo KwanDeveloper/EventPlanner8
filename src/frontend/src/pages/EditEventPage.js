@@ -25,6 +25,19 @@ function EditEventPage() {
   };
   const getEndMinDateTime = () => form.date || getMinDateTime();
 
+  const formatDateTimeLocal = (date) => {
+    const pad = (value) => String(value).padStart(2, '0');
+    return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
+  };
+
+  const localDateTimeToUTC = (localDateTimeStr) => {
+    if (!localDateTimeStr) return '';
+    const local = new Date(localDateTimeStr);
+    if (Number.isNaN(local.getTime())) return localDateTimeStr;
+    const utc = new Date(local.getTime() + local.getTimezoneOffset() * 60000);
+    return formatDateTimeLocal(utc);
+  };
+
   const [form, setForm] = useState({
     title: '',
     host: session.fullName || session.email,
@@ -303,8 +316,8 @@ function EditEventPage() {
           owner_email: session.email,
           title: normalizedTitle,
           host: form.host,
-          date: form.date,
-          end_date: form.end_date,
+          date: localDateTimeToUTC(form.date),
+          end_date: localDateTimeToUTC(form.end_date),
           location: form.location,
           location_types: form.location_types,
           description: normalizedDescription,

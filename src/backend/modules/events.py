@@ -34,7 +34,7 @@ def _same_event_minute(first_date: str, second_date: str):
 def _validate_event_window(start_date: str, end_date: str, allow_existing_past_start: bool = False):
     start_time = _parse_event_datetime(start_date)
     end_time = _parse_event_datetime(end_date)
-    current_minute = datetime.now(start_time.tzinfo).replace(second=0, microsecond=0)
+    current_minute = datetime.utcnow().replace(second=0, microsecond=0)
 
     if not allow_existing_past_start and start_time < current_minute:
         raise ValueError("Event date and time cannot be in the past")

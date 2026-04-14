@@ -23,6 +23,14 @@ function CreateEventPage() {
     return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
   };
 
+  const localDateTimeToUTC = (localDateTimeStr) => {
+    if (!localDateTimeStr) return '';
+    const local = new Date(localDateTimeStr);
+    if (Number.isNaN(local.getTime())) return localDateTimeStr;
+    const utc = new Date(local.getTime() + local.getTimezoneOffset() * 60000);
+    return formatDateTimeLocal(utc);
+  };
+
   const getCurrentDateTime = () => formatDateTimeLocal(new Date());
   const addOneHour = (dateTime) => {
     const parsed = new Date(dateTime);
@@ -251,8 +259,8 @@ function CreateEventPage() {
             owner_email: session.email,
             title: normalizedTitle,
             host: form.host,
-            date: effectiveStartDate,
-            end_date: effectiveEndDate,
+            date: localDateTimeToUTC(effectiveStartDate),
+            end_date: localDateTimeToUTC(effectiveEndDate),
             location: form.location,
             location_types: form.location_types,
             description: normalizedDescription,
