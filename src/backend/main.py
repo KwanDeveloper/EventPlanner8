@@ -1,4 +1,9 @@
 # Imports
+import os
+import threading
+import time
+from urllib.request import urlopen
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
@@ -304,4 +309,26 @@ def admin_report_remove_event_hoster(event_id: str, body: RemoveRequest):
         return {"success": False, "message": str(e)}
 
 # Initialize
+
+def _start_self_pinger():
+    domain = os.getenv("PING_DOMAIN", "").strip()
+    if not domain: return
+    if not domain.startswith(("http://", "https://")): domain = f"https://{domain}"
+
+    target_url = domain.rstrip("/")
+
+    def ping_loop():
+        while True:
+            try:
+                with urlopen(target_url, timeout=10) as response:
+                    response.read(1)
+                print("SERVER | Successfully pinged server! 🟢")
+            except Exception:
+                print("SERVER | Failed to ping server! 🔴")
+                
+            time.sleep(60)
+
+    threading.Thread(target=ping_loop, daemon=True).start()
+
+_start_self_pinger()
 print("SERVER | Server is online! 🟢")
