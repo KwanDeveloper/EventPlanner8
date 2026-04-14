@@ -63,8 +63,9 @@ function formatDistanceLabel(distanceMiles) {
 }
 
 function isEventLiveNow(start, end, now = new Date()) {
-  const startTime = start ? new Date(start) : null;
-  const endTime = end ? new Date(end) : null;
+  // Backend sends UTC datetimes without timezone indicator, so append 'Z' to parse as UTC
+  const startTime = start ? new Date(start.includes('Z') ? start : `${start}Z`) : null;
+  const endTime = end ? new Date(end.includes('Z') ? end : `${end}Z`) : null;
 
   return Boolean(
     startTime &&
