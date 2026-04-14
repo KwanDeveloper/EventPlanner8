@@ -16,6 +16,8 @@ AI_CHOICE_MAX_LENGTH = 64
 REPORT_REASONS = {"Spam", "Harassment", "Explicit", "Irrelevant", "Other"}
 EVENT_CREATION_RATE_LIMIT_SECONDS = 5
 COORDINATE_PRECISION = 6
+EVENT_PURGE_INTERVAL_SECONDS = 60
+_last_event_purge_at = None
 
 # Functions
 def _parse_event_datetime(date: str):
@@ -241,7 +243,13 @@ def _attendee_payload(user: dict, email: str):
     }
 
 def _purge_expired_events():
+    global _last_event_purge_at
+
     now = datetime.now()
+    if _last_event_purge_at is not None and (now - _last_event_purge_at).total_seconds() < EVENT_PURGE_INTERVAL_SECONDS:
+        return
+
+    _last_event_purge_at = now
     for doc in events_database.get_collection():
         event = doc.get("value")
         if not isinstance(event, dict):
@@ -267,9 +275,9 @@ def _parse_timestamp(value: str):
 def _event_creation_is_rate_limited(owner_email: str):
     latest_published_at = None
 
-    for doc in events_database.get_collection():
+    for doc in events_database.get_collection({"owner_email": owner_email}):
         event = doc.get("value")
-        if not isinstance(event, dict) or event.get("owner_email") != owner_email:
+        if not isinstance(event, dict):
             continue
 
         published_at = _parse_timestamp(event.get("published_at") or event.get("created_at"))
@@ -299,9 +307,9 @@ def delete_events_for_owner(owner_email: str):
     removed_event_ids = []
     removed_report_count = 0
 
-    for doc in events_database.get_collection():
+    for doc in events_database.get_collection({"owner_email": owner_email}):
         event = doc.get("value")
-        if not isinstance(event, dict) or event.get("owner_email") != owner_email:
+        if not isinstance(event, dict):
             continue
 
         event_id = doc.get("key")
@@ -345,12 +353,11 @@ def _report_sort_key(report: dict):
 def _group_reports_by_event(include_resolved: bool = False):
     grouped_reports = {}
 
-    for doc in reports_database.get_collection():
+    report_docs = reports_database.get_collection() if include_resolved else reports_database.get_collection({"status": {"$ne": "resolved"}})
+
+    for doc in report_docs:
         report = doc.get("value")
         if not isinstance(report, dict):
-            continue
-
-        if not include_resolved and report.get("status") == "resolved":
             continue
 
         event_id = str(report.get("event_id", "")).strip()
@@ -419,11 +426,9 @@ def _reporter_identity(report: dict):
 
 def _remove_reports_for_event(event_id: str):
     removed = 0
-    for doc in reports_database.get_collection():
+    for doc in reports_database.get_collection({"event_id": event_id}):
         report = doc.get("value")
         if not isinstance(report, dict):
-            continue
-        if report.get("event_id") != event_id:
             continue
         reports_database.remove_document(doc.get("key"))
         removed += 1
@@ -486,15 +491,13 @@ def create_event(owner_email: str, title: str, host: str, date: str, end_date: s
 
 def get_events_by_host(owner_email: str):
     _purge_expired_events()
-    all_events = events_database.get_collection()
     events = []
-    for doc in all_events:
+    for doc in events_database.get_collection({"owner_email": owner_email}):
         event = doc.get("value")
         if not isinstance(event, dict):
             continue
         event = _ensure_event_defaults(event)
-        if event.get("owner_email") == owner_email:
-            events.append(event)
+        events.append(event)
     events.sort(key=lambda e: e.get("created_at", ""), reverse=True)
     return {"success": True, "events": events}
 
@@ -524,9 +527,15 @@ async def get_recommended_events(email: str):
     if not interests or not allowed_tags:
         return {"success": True, "events": [], "ai_ranked": False}
 
-    all_events_response = get_all_events()
-    events = all_events_response.get("events", [])
-    candidate_events = [event for event in events if _event_matches_tags(event, allowed_tags)]
+    candidate_events = []
+    for doc in events_database.get_collection({"location_types": {"$in": list(allowed_tags)}}):
+        event = doc.get("value")
+        if not isinstance(event, dict):
+            continue
+        event = _ensure_event_defaults(event)
+        if _event_matches_tags(event, allowed_tags):
+            candidate_events.append(event)
+
     if not candidate_events:
         return {"success": True, "events": [], "ai_ranked": False}
 

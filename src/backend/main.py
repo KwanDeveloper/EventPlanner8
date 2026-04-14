@@ -168,7 +168,13 @@ def account_delete(email: str):
         return {"success": False, "message": str(e)}
 
 @app.get("/profile")
-def profile_get(email: str):
+def profile_get(email: str | None = None):
+    if email is None:
+        index_file = FRONTEND_BUILD_DIR / "index.html"
+        if index_file.exists():
+            return FileResponse(index_file)
+        return {"detail": "Frontend build not found"}
+
     try:
         return get_profile(email)
     except ValueError as e:

@@ -32,7 +32,8 @@ def _flatten_dict(value: dict, prefix: str = ""):
         if not isinstance(key, str) or not key.strip(): raise ValueError("query keys must be non-empty strings")
 
         path = f"{prefix}.{key.strip()}" if prefix else key.strip()
-        if isinstance(item, dict) and item: output.update(_flatten_dict(item, path))
+        if isinstance(item, dict) and item and not any(str(sub_key).startswith("$") for sub_key in item):
+            output.update(_flatten_dict(item, path))
         else: output[path] = item
 
     return output
@@ -64,21 +65,22 @@ def _find_matching_document(collection: Collection, key):
     if "_id" in normalized_key: return collection.find_one({"_id": normalized_key["_id"]})
 
     query_items = _flatten_dict(normalized_key)
+    mongo_query = {f"value.{path}": expected for path, expected in query_items.items()}
+    return collection.find_one(mongo_query)
 
-    for document in collection.find():
-        value = document.get("value")
-        if not isinstance(value, dict): continue
+def _build_collection_query(key=None):
+    if key is None:
+        return {}
 
-        matches_all = True
-        for path, expected in query_items.items():
-            current, exists = _get_nested_value(value, path)
-            if not exists or current != expected:
-                matches_all = False
-                break
+    normalized_key = _normalize_key(key)
+    if isinstance(normalized_key, str):
+        return {"_id": normalized_key}
 
-        if matches_all: return document
+    if "_id" in normalized_key:
+        return {"_id": normalized_key["_id"]}
 
-    return None
+    query_items = _flatten_dict(normalized_key)
+    return {f"value.{path}": expected for path, expected in query_items.items()}
 
 class database:
     def __init__(self, collection_name: str):
@@ -113,10 +115,10 @@ class database:
         if result.deleted_count <= 0: return None, None
         return document.get("value"), document["_id"]
     
-    def get_collection(self):
+    def get_collection(self, key=None):
         output = []
 
-        for document in self.collection.find():
+        for document in self.collection.find(_build_collection_query(key)):
             output.append({"key": document.get("_id"), "value": document.get("value")})
 
         return output

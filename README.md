@@ -20,35 +20,41 @@ Visit our deployment demo at [https://eventplanner8.koyeb.app/](https://eventpla
 
 ## Screenshots
 
-![Home page](docs/images/1.png)
+![Home page](docs/1.png)
 *Figure 1. Home page.*
 
-![Sign up page](docs/images/2.png)
+![Sign up page](docs/2.png)
 *Figure 2. Sign up page.*
 
-![Log in page](docs/images/3.png)
+![Log in page](docs/3.png)
 *Figure 3. Log in page.*
 
-![Onboarding page](docs/images/4.png)
+![Onboarding page](docs/4.png)
 *Figure 4. Onboarding page.*
 
-![Dashboard page](docs/images/5.png)
+![Dashboard page](docs/5.png)
 *Figure 5. Dashboard page.*
 
-![Event details page](docs/images/6.png)
+![Event details page](docs/6.png)
 *Figure 6. Event details page.*
 
-![Profile page](docs/images/7.png)
-*Figure 7. Profile page.*
+![Report event page](docs/7.png)
+*Figure 7. Report event page.*
 
-![Create event page](docs/images/8.png)
-*Figure 8. Create event page.*
+![Profile page](docs/8.png)
+*Figure 8. Profile page.*
 
-![My events page](docs/images/9.png)
-*Figure 9. My events page.*
+![Host registration page](docs/9.png)
+*Figure 9. Host registration page.*
 
-![Admin dashboard page](docs/images/10.png)
-*Figure 10. Admin dashboard page.*
+![Create event page](docs/10.png)
+*Figure 10. Create event page.*
+
+![My events page](docs/11.png)
+*Figure 11. My events page.*
+
+![Admin dashboard page](docs/12.png)
+*Figure 12. Admin dashboard page.*
 
 ---
 

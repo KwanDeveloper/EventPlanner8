@@ -210,30 +210,21 @@ def delete_account(email: str):
     }
 
 def get_admin_users():
-    admins = []
-    hosters = []
-
-    for doc in users_database.get_collection():
+    def _payload(doc):
         user = doc.get("value")
         if not isinstance(user, dict):
-            continue
+            return None
 
-        role = user.get("role", "user")
-        if role not in {"admin", "hoster"}:
-            continue
-
-        payload = {
+        return {
             "email": user.get("email", doc.get("key", "")),
             "first_name": user.get("first_name", ""),
             "last_name": user.get("last_name", ""),
-            "role": role,
+            "role": user.get("role", "user"),
             "organization": user.get("organization", ""),
         }
 
-        if role == "admin":
-            admins.append(payload)
-        else:
-            hosters.append(payload)
+    admins = [payload for payload in (_payload(doc) for doc in users_database.get_collection({"role": "admin"})) if payload]
+    hosters = [payload for payload in (_payload(doc) for doc in users_database.get_collection({"role": "hoster"})) if payload]
 
     admins.sort(key=lambda user: (user["first_name"], user["last_name"], user["email"]))
     hosters.sort(key=lambda user: (user["organization"], user["first_name"], user["last_name"], user["email"]))
