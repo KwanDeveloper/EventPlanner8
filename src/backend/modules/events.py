@@ -452,7 +452,7 @@ def create_event(owner_email: str, title: str, host: str, date: str, end_date: s
     if user.get("role") not in {"hoster", "admin"}:
         return {"success": False, "message": "Only hosters and admins can create events"}
 
-    if _event_creation_is_rate_limited(owner_email):
+    if user.get("role") != "admin" and _event_creation_is_rate_limited(owner_email):
         return {"success": False, "message": "You are making events too fast. Please wait 5 seconds before creating another event."}
 
     title = _normalize_event_title(title)

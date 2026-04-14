@@ -20,8 +20,35 @@ Visit our deployment demo at [https://eventplanner8.koyeb.app/](https://eventpla
 
 ## Screenshots
 
-Coming Soon!
-<!-- Add screenshots of the app here -->
+![Home page](docs/images/1.png)
+*Figure 1. Home page.*
+
+![Sign up page](docs/images/2.png)
+*Figure 2. Sign up page.*
+
+![Log in page](docs/images/3.png)
+*Figure 3. Log in page.*
+
+![Onboarding page](docs/images/4.png)
+*Figure 4. Onboarding page.*
+
+![Dashboard page](docs/images/5.png)
+*Figure 5. Dashboard page.*
+
+![Event details page](docs/images/6.png)
+*Figure 6. Event details page.*
+
+![Profile page](docs/images/7.png)
+*Figure 7. Profile page.*
+
+![Create event page](docs/images/8.png)
+*Figure 8. Create event page.*
+
+![My events page](docs/images/9.png)
+*Figure 9. My events page.*
+
+![Admin dashboard page](docs/images/10.png)
+*Figure 10. Admin dashboard page.*
 
 ---
 
