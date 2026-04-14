@@ -34,7 +34,7 @@ function EditEventPage() {
     if (!localDateTimeStr) return '';
     const local = new Date(localDateTimeStr);
     if (Number.isNaN(local.getTime())) return localDateTimeStr;
-    const utc = new Date(local.getTime() + local.getTimezoneOffset() * 60000);
+    const utc = new Date(local.getTime() - local.getTimezoneOffset() * 60000);
     return formatDateTimeLocal(utc);
   };
 
