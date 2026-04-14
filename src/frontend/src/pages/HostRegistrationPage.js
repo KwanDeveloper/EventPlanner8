@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import '../styles/App.css';
 import '../styles/HostRegistrationPage.css';
@@ -16,13 +16,34 @@ function HostRegistrationPage() {
   const blockedMessage = blockedRole ? `You can't register as ${blockedArticle} ${session.role}.` : '';
   const cameFromOnboarding = location.state?.from === 'onboarding';
   const backPath = cameFromOnboarding ? '/onboarding' : '/profile';
-  const [submitted, setSubmitted] = useState(false);
+  const [submitStatus, setSubmitStatus] = useState('checking');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [form, setForm] = useState({
     organization: '',
     message: '',
   });
+
+  // On mount: check whether this user already submitted a host request
+  useEffect(() => {
+    let cancelled = false;
+    const checkExisting = async () => {
+      if (!session?.email) {
+        if (!cancelled) setSubmitStatus('idle');
+        return;
+      }
+      try {
+        const res = await fetch(`http://localhost:8000/host-registration?email=${encodeURIComponent(session.email)}`);
+        const data = await res.json();
+        if (!cancelled) setSubmitStatus(data.success && data.request ? 'already_submitted' : 'idle');
+      } catch {
+        if (!cancelled) setSubmitStatus('idle');
+      }
+    };
+
+    checkExisting();
+    return () => { cancelled = true; };
+  }, [session.email]);
 
   const handleChange = (e) => {
     setForm({
@@ -55,7 +76,7 @@ function HostRegistrationPage() {
       const data = await res.json();
 
       if (data.success) {
-        setSubmitted(true);
+        setSubmitStatus(data.already_submitted ? 'already_submitted' : 'submitted');
       } else {
         setError(data.message || 'Submission failed.');
       }
@@ -92,10 +113,15 @@ function HostRegistrationPage() {
         {blockedRole ? (
           <p className="host-error host-status-banner">⚠ {blockedMessage}</p>
         ) : (
-          <p className="hosting-as-text">✓ You&apos;re hosting as {hostDisplayName} ({session.email})!</p>
+          <p className="hosting-as-text">✓ You are registering as {hostDisplayName} ({session.email})</p>
         )}
 
-        {!submitted ? (
+        {submitStatus === 'checking' ? (
+          <div className="success-box" style={{ opacity: 0.7 }}>
+            <span style={{ fontSize: '1.8rem' }}>⏳</span>
+            <p style={{ fontSize: '0.95rem', color: '#666' }}>Checking application status…</p>
+          </div>
+        ) : submitStatus === 'idle' ? (
           <form className={`host-form ${blockedRole ? 'host-form-blocked' : ''}`} onSubmit={handleSubmit}>
             <fieldset className="host-form-fieldset" disabled={blockedRole}>
               <div className="form-group full-width">
@@ -132,10 +158,11 @@ function HostRegistrationPage() {
         ) : (
           <div className="success-box">
             <span className="success-icon">✅</span>
-            <h2>Application Submitted!</h2>
+            <h2>{submitStatus === 'already_submitted' ? 'Application Already Submitted!' : 'Application Submitted!'}</h2>
             <p>
-              Thanks, {session.firstName}! Your request is pending review. We&apos;ll notify
-              you once an admin approves your application.
+              {submitStatus === 'already_submitted'
+                ? 'We already have your host registration request on file. The admins will review it.'
+                : `Thanks, ${session.firstName}! Your request is pending review. We&apos;ll notify you once an admin approves your application.`}
             </p>
             <button className="btn-secondary" onClick={() => navigate(backPath)}>
               {cameFromOnboarding ? '← Back to Onboarding' : '← Back to Profile'}

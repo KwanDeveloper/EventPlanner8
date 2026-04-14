@@ -93,7 +93,7 @@ function LoggedInNavbar({ title, actionLabel, actionPath, actions, onBeforeNavig
       const maskActive = titleMaskActiveRef.current || scrollable;
 
       setShowLeftMask(maskActive && scrollLeft > 1);
-      setShowRightMask(maskActive && (scrollable || !atRightEdge));
+      setShowRightMask(maskActive && scrollable && !atRightEdge);
     };
 
     const syncButtonsToEnd = () => {

@@ -117,7 +117,18 @@ function ReportEventPage() {
   }
 
   if (reportStatus === 'loading') {
-    return null;
+    return (
+      <div className="create-event-page">
+        <LoggedInNavbar title="Report Event" actionLabel="Dashboard" actionPath="/dashboard" />
+
+        <main className="create-event-content report-event-content">
+          <div className="create-event-success report-success-box" style={{ opacity: 0.7 }}>
+            <span style={{ fontSize: '1.8rem' }}>⏳</span>
+            <p style={{ fontSize: '0.95rem', color: '#666' }}>Checking report status…</p>
+          </div>
+        </main>
+      </div>
+    );
   }
 
   return (

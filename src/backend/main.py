@@ -11,7 +11,7 @@ from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
-from modules.user import sign_up, sign_in, get_profile, update_profile, delete_account, submit_host_request, get_host_requests, approve_host_request, deny_host_request, get_admin_users, remove_hoster
+from modules.user import sign_up, sign_in, get_profile, update_profile, delete_account, submit_host_request, get_host_requests, approve_host_request, deny_host_request, get_admin_users, remove_hoster, get_host_request
 from modules.events import create_event, get_events_by_host, get_all_events, get_recommended_events, get_event, get_event_attendees, attend_event, unattend_event, update_event, delete_event, report_event, get_event_report, get_admin_report_summaries, get_admin_report_detail, resolve_admin_report, remove_reported_event
 
 # Variables
@@ -122,6 +122,16 @@ def login(body: LoginRequest):
 def host_registration(body: HostRegistrationRequest):
     try:
         return submit_host_request(body.email, body.first_name, body.last_name, body.organization, body.message)
+    except ValueError as e:
+        return {"success": False, "message": str(e)}
+
+
+@app.get("/host-registration")
+def host_registration_get(email: str | None = None):
+    if email is None:
+        return {"success": False, "message": "Email required"}
+    try:
+        return get_host_request(email)
     except ValueError as e:
         return {"success": False, "message": str(e)}
 

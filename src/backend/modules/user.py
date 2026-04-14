@@ -162,6 +162,10 @@ def submit_host_request(email: str, first_name: str, last_name: str, organizatio
     if user.get("role") in {"admin", "hoster"}:
         return {"success": False, "message": f'You cannot register as {user.get("role")}'}
 
+    existing_request, _ = host_requests_database.get_document(email)
+    if existing_request is not None:
+        return {"success": True, "message": "Host request already submitted", "already_submitted": True}
+
     host_requests_database.set_document(email, {
         "email": email,
         "first_name": first_name,
@@ -170,7 +174,15 @@ def submit_host_request(email: str, first_name: str, last_name: str, organizatio
         "message": message.strip(),
     })
 
-    return {"success": True, "message": "Host request submitted"}
+    return {"success": True, "message": "Host request submitted", "already_submitted": False}
+
+
+def get_host_request(email: str):
+    email = _validate_email(email)
+    request, _ = host_requests_database.get_document(email)
+    if request is None:
+        return {"success": True, "request": None}
+    return {"success": True, "request": request}
 
 def get_host_requests(): return {"success": True, "requests": host_requests_database.get_collection()}
 
