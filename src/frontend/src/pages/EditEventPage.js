@@ -417,6 +417,7 @@ function EditEventPage() {
                 type="datetime-local"
                 name="date"
                 className={!startTouched ? 'ce-input-placeholder-state' : ''}
+                min={getMinDateTime()}
                 value={form.date}
                 onChange={handleChange}
                 required
