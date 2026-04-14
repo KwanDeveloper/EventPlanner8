@@ -120,6 +120,34 @@
   margin-bottom: 14px;
 }
 
+.admin-section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 14px;
+}
+
+.admin-section-header .admin-role-heading {
+  margin-bottom: 0;
+}
+
+.admin-section-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 38px;
+  padding: 0 14px;
+  border-radius: 999px;
+  background: rgba(59, 63, 160, 0.08);
+  color: #3b3fa0;
+  font-size: 0.82rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  flex-shrink: 0;
+}
+
 .admin-empty-inline {
   color: #888;
   font-size: 0.92rem;
@@ -767,6 +795,11 @@
 @media (max-width: 640px) {
   .admin-content {
     padding: 40px 18px 72px;
+  }
+
+  .admin-section-header {
+    align-items: flex-start;
+    flex-direction: column;
   }
 
   .admin-user-row,

@@ -14,8 +14,45 @@ function ProfilePage() {
   const NAME_MAX_LENGTH = 64;
   const PASSWORD_MAX_LENGTH = 256;
   const INTERESTS_MAX_LENGTH = 256;
+  const DIVERSITY_DEFAULT = 0.2;
   const preferenceOptions = ['on-campus', 'off-campus'];
   const normalizeInterestsInput = (value) => value.replace(/\s+$/, '');
+  const clampDiversity = (value) => Math.max(-1, Math.min(1, Number(value)));
+  const snapDiversity = (value) => Math.round(clampDiversity(value) * 10) / 10;
+  const formatDiversityValue = (value) => {
+    const rounded = Math.round(value * 10) / 10;
+    return rounded.toFixed(rounded % 1 === 0 ? 0 : 1);
+  };
+  const getDiversityMessage = (value) => {
+    const snapped = Math.round(clampDiversity(value) * 2) / 2;
+    if (snapped <= -1) return 'Wide-open mode';
+    if (snapped <= -0.5) return 'More variety than match';
+    if (snapped < 0.5) return 'Balanced mix';
+    if (snapped < 1) return 'Mostly your lane';
+    return 'Locked into your interests';
+  };
+  const getDiversityPercent = (value) => ((value + 1) / 2) * 100;
+  const getDiversityAccentColor = (value) => {
+    const progress = getDiversityPercent(value);
+    const red = { r: 192, g: 57, b: 67 };
+    const blue = { r: 59, g: 63, b: 160 };
+    const mix = (start, end) => Math.round(start + ((end - start) * progress) / 100);
+    return `rgb(${mix(red.r, blue.r)}, ${mix(red.g, blue.g)}, ${mix(red.b, blue.b)})`;
+  };
+  const getDiversityTextColor = (value) => {
+    const red = { r: 192, g: 57, b: 67 };
+    const neutral = { r: 123, g: 128, b: 168 };
+    const blue = { r: 59, g: 63, b: 160 };
+    const mix = (start, end, ratio) => Math.round(start + ((end - start) * ratio));
+    const normalized = clampDiversity(value);
+
+    if (normalized <= 0) {
+      const ratio = normalized + 1;
+      return `rgb(${mix(red.r, neutral.r, ratio)}, ${mix(red.g, neutral.g, ratio)}, ${mix(red.b, neutral.b, ratio)})`;
+    }
+
+    return `rgb(${mix(neutral.r, blue.r, normalized)}, ${mix(neutral.g, blue.g, normalized)}, ${mix(neutral.b, blue.b, normalized)})`;
+  };
   const eventTypeToSelections = (value) => {
     if (!Array.isArray(value)) {
       return [];
@@ -35,6 +72,7 @@ function ProfilePage() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [interests, setInterests] = useState('');
+  const [diversity, setDiversity] = useState(DIVERSITY_DEFAULT);
   const [eventType, setEventType] = useState([]);
   const [initialProfile, setInitialProfile] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -86,6 +124,7 @@ function ProfilePage() {
             lastName: data.last_name || session.lastName || '',
             role: data.role || session.role || 'user',
             interests: normalizeInterestsInput(data.interests || ''),
+            diversity: snapDiversity(data.diversity ?? DIVERSITY_DEFAULT),
             eventType: Array.isArray(data.event_type) ? data.event_type : [],
           };
 
@@ -93,6 +132,7 @@ function ProfilePage() {
           setLastName(profileState.lastName);
           setRole(profileState.role);
           setInterests(profileState.interests);
+          setDiversity(profileState.diversity);
           setEventType(profileState.eventType);
           setUserRole(profileState.role);
           setInitialProfile(profileState);
@@ -139,6 +179,7 @@ function ProfilePage() {
       firstName !== initialProfile.firstName ||
       lastName !== initialProfile.lastName ||
       interests !== initialProfile.interests ||
+      diversity !== initialProfile.diversity ||
       JSON.stringify(eventType) !== JSON.stringify(initialProfile.eventType) ||
       ((password || confirmPassword) && confirmPassword && (password !== '' || confirmPassword !== ''))
     )
@@ -196,6 +237,7 @@ function ProfilePage() {
           first_name: firstName,
           last_name: lastName,
           interests: nextInterests,
+          diversity,
           event_type: [...eventType],
           password,
           confirm_password: confirmPassword,
@@ -209,6 +251,7 @@ function ProfilePage() {
           lastName: lastName.trim(),
           role,
           interests: nextInterests,
+          diversity,
           eventType: [...eventType],
         };
 
@@ -263,6 +306,14 @@ function ProfilePage() {
     clearAuthSession();
     navigate('/');
   };
+
+  const showDiversityControl = interests.trim().length > 0;
+  const diversityAccentColor = getDiversityAccentColor(diversity);
+  const diversityTextColor = getDiversityTextColor(diversity);
+  const diversityPercent = getDiversityPercent(diversity);
+  const diversityMessage = getDiversityMessage(diversity);
+  const diversityLeftColor = getDiversityTextColor(-1);
+  const diversityRightColor = getDiversityTextColor(1);
 
   return (
     <div className="onboarding">
@@ -419,6 +470,52 @@ function ProfilePage() {
                 rows={4}
               />
               <p className="interests-char-count">{getEffectiveCharacterCount(interests, { multiline: true })} / {INTERESTS_MAX_LENGTH} characters</p>
+              {showDiversityControl && (
+                <div className="profile-diversity-control">
+                  <div className="profile-diversity-header">
+                    <h3 className="profile-diversity-title">Diversity</h3>
+                    <p className="profile-diversity-sub">
+                      Shift left for broader discovery, or right for picks that stay closer to your interests.
+                    </p>
+                  </div>
+                  <div className="profile-diversity-rail">
+                    <div
+                      className="profile-diversity-slider-wrap"
+                      style={{
+                        '--diversity-color': diversityAccentColor,
+                        '--diversity-progress': `${diversityPercent}%`,
+                      }}
+                    >
+                      <div className="profile-diversity-topline">
+                        <span className="profile-diversity-value" style={{ color: diversityTextColor }}>
+                          {formatDiversityValue(diversity)}
+                        </span>
+                        <p className="profile-diversity-message" style={{ color: diversityTextColor }}>{diversityMessage}</p>
+                        <button
+                          type="button"
+                        className="profile-diversity-reset"
+                        onClick={() => setDiversity(DIVERSITY_DEFAULT)}
+                      >
+                        Reset to default
+                      </button>
+                      </div>
+                      <input
+                        type="range"
+                        min="-1"
+                        max="1"
+                        step="0.1"
+                        value={diversity}
+                        className="profile-diversity-slider"
+                        onChange={(e) => setDiversity(snapDiversity(e.target.value))}
+                      />
+                    </div>
+                  </div>
+                  <div className="profile-diversity-scale profile-diversity-rail">
+                    <span style={{ color: diversityLeftColor }}>Less aligned</span>
+                    <span style={{ color: diversityRightColor }}>More aligned</span>
+                  </div>
+                </div>
+              )}
             </div>
 
             <div className="onboarding-card">

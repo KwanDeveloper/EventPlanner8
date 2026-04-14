@@ -230,7 +230,7 @@ function MyEventsPage() {
                   </div>
                 )}
                 <p className="my-event-location">
-                  {'\u{1F4CD}'} {event.location}
+                  {'📍'} {event.location}
                   {locationEnabled && (
                     <span className="my-event-location-distance">
                       {' '}

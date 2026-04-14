@@ -56,6 +56,7 @@ class UpdateProfileRequest(BaseModel):
     first_name: str
     last_name: str
     interests: str
+    diversity: float = 0.2
     event_type: list[str] | str
     password: str = ""
     confirm_password: str = ""
@@ -153,6 +154,7 @@ def profile_update(body: UpdateProfileRequest):
             body.first_name,
             body.last_name,
             body.interests,
+            body.diversity,
             body.event_type,
             body.password,
             body.confirm_password,

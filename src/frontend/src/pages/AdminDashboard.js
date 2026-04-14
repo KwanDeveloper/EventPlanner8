@@ -202,13 +202,17 @@ MacOS:
 ./.venv/bin/python src/backend/cmds/cmd.py`}</pre>
         </div>
 
-        {!loading && (
-          <>
+        <>
             <section className="admin-role-section">
-              <h2 className="admin-role-heading">Admins</h2>
-              {admins.length === 0 ? (
+              <div className="admin-section-header">
+                <h2 className="admin-role-heading">Admins</h2>
+                <span className="admin-section-count">{admins.length} Users</span>
+              </div>
+              {loading ? (
+                <p className="admin-loading">Loading admins...</p>
+              ) : admins.length === 0 ? (
                 <div className="admin-empty admin-empty--compact">
-                  <span className="admin-empty-icon" aria-hidden="true">{"\u{1F451}"}</span>
+                  <span className="admin-empty-icon" aria-hidden="true">{"🔨"}</span>
                   <p>No admins found.</p>
                 </div>
               ) : (
@@ -235,10 +239,15 @@ MacOS:
             </section>
 
             <section className="admin-role-section">
-              <h2 className="admin-role-heading">Hosters</h2>
-              {hosters.length === 0 ? (
+              <div className="admin-section-header">
+                <h2 className="admin-role-heading">Hosters</h2>
+                <span className="admin-section-count">{hosters.length} Users</span>
+              </div>
+              {loading ? (
+                <p className="admin-loading">Loading hosters...</p>
+              ) : hosters.length === 0 ? (
                 <div className="admin-empty admin-empty--compact">
-                  <span className="admin-empty-icon" aria-hidden="true">{"\u{1F4E3}"}</span>
+                  <span className="admin-empty-icon" aria-hidden="true">{"📣"}</span>
                   <p>No hosters found.</p>
                 </div>
               ) : (
@@ -266,16 +275,18 @@ MacOS:
                 </div>
               )}
             </section>
-          </>
-        )}
+        </>
 
         <section className="admin-role-section">
-          <h2 className="admin-role-heading">Event Host Requests</h2>
+          <div className="admin-section-header">
+            <h2 className="admin-role-heading">Event Host Requests</h2>
+            <span className="admin-section-count">{requests.length} Pending</span>
+          </div>
           {loading ? (
             <p className="admin-loading">Loading requests...</p>
           ) : requests.length === 0 ? (
             <div className="admin-empty admin-empty--compact">
-              <span className="admin-empty-icon" aria-hidden="true">{"\u{1F4ED}"}</span>
+              <span className="admin-empty-icon" aria-hidden="true">{"📭"}</span>
               <p>No pending host requests.</p>
             </div>
           ) : (
@@ -322,14 +333,14 @@ MacOS:
         <section className="admin-role-section">
           <div className="admin-reports-header">
             <h2 className="admin-role-heading admin-role-heading--danger">Reports</h2>
-            <span className="admin-report-total">{reports.length} active</span>
+            <span className="admin-report-total">{reports.length} pending</span>
           </div>
 
           {loading ? (
             <p className="admin-loading">Loading reports...</p>
           ) : reports.length === 0 ? (
             <div className="admin-empty admin-empty--compact">
-              <span className="admin-empty-icon" aria-hidden="true">{"\u2705"}</span>
+              <span className="admin-empty-icon" aria-hidden="true">✅</span>
               <p>There are no pending reports.</p>
             </div>
           ) : (
@@ -448,7 +459,7 @@ MacOS:
                 </div>
 
                 {reportActionError && (
-                  <p className="admin-report-error">{"\u26A0"} {reportActionError}</p>
+                  <p className="admin-report-error">⚠ {reportActionError}</p>
                 )}
 
                 <div className="admin-report-detail-actions">

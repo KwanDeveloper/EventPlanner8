@@ -108,7 +108,7 @@ function ReportEventPage() {
                 : 'Thanks for letting us know. The admins will be notified.'}
             </p>
             <button className="ce-btn-secondary" onClick={() => navigate(`/dashboard/${encodeURIComponent(eventId)}`)}>
-              {'\u2190'} Back to Event
+              ← Back to Event
             </button>
           </div>
         </main>
@@ -126,7 +126,7 @@ function ReportEventPage() {
 
       <main className="create-event-content report-event-content">
         <button type="button" className="report-back-btn" onClick={() => navigate(`/dashboard/${encodeURIComponent(eventId)}`)}>
-          {'\u2190'} Back
+          ← Back
         </button>
 
         <div className="create-event-header">

@@ -130,24 +130,6 @@ def _event_expiry_time(event: dict):
         return None
     return _parse_event_datetime(end_date)
 
-def _normalize_interest_queries(interests: str):
-    if not isinstance(interests, str):
-        return []
-
-    normalized = interests.replace("\r", "\n")
-    parts = []
-    for raw_part in normalized.replace(";", ",").splitlines():
-        for chunk in raw_part.split(","):
-            cleaned = " ".join(chunk.strip().split())
-            if cleaned and cleaned not in parts:
-                parts.append(cleaned)
-
-    if not parts:
-        fallback = " ".join(normalized.split())
-        return [fallback] if fallback else []
-
-    return parts[:8]
-
 def _normalize_event_type_to_tags(event_type: str):
     if isinstance(event_type, list):
         return {
@@ -189,13 +171,27 @@ def _event_recommendation_text(event: dict):
     title = " ".join(str(event.get("title", "")).split())
     first_sentence = _first_sentence(str(event.get("description", "")))
     combined = f"{title}. {first_sentence}".strip() if first_sentence else title
-    return combined[:AI_CHOICE_MAX_LENGTH].rstrip()
+    prefixed = f"Event: {combined}" if combined else "Event:"
+    return prefixed[:AI_CHOICE_MAX_LENGTH].rstrip()
 
 def _extract_ranked_scores(result: dict):
     output = result.get("output")
-    if isinstance(output, list):
-        return output
+    if isinstance(output, list) and output:
+        if isinstance(output[0], dict):
+            return [output]
+        if isinstance(output[0], list):
+            return output
     return []
+
+def _normalize_diversity_threshold(value):
+    try:
+        diversity = float(value)
+    except (TypeError, ValueError):
+        diversity = 0.2
+
+    diversity = max(-1.0, min(1.0, diversity))
+    threshold = 0.15 + (diversity * 0.25)
+    return max(0.1, min(0.4, threshold))
 
 def _normalize_attendee_emails(attendee_emails):
     if not isinstance(attendee_emails, list):
@@ -523,6 +519,7 @@ async def get_recommended_events(email: str):
         return {"success": False, "message": "User not found"}
 
     interests = str(user.get("interests", "")).strip()
+    score_threshold = _normalize_diversity_threshold(user.get("diversity", 0.2))
     event_type = user.get("event_type", [])
     allowed_tags = _normalize_event_type_to_tags(event_type)
     if not interests or not allowed_tags:
@@ -534,8 +531,8 @@ async def get_recommended_events(email: str):
     if not candidate_events:
         return {"success": True, "events": [], "ai_ranked": False}
 
-    interest_queries = _normalize_interest_queries(interests)
-    if not interest_queries:
+    query = interests
+    if not query:
         return {"success": True, "events": [], "ai_ranked": False}
 
     event_texts = []
@@ -552,10 +549,8 @@ async def get_recommended_events(email: str):
     if not event_texts:
         return {"success": True, "events": [], "ai_ranked": False}
 
-    prompts = [f"I want to attend events related to {query}." for query in interest_queries]
-
     try:
-        result = await give_recommendation(prompts, event_texts)
+        result = await give_recommendation(query, event_texts)
     except Exception:
         return {"success": True, "events": [], "ai_ranked": False}
 
@@ -573,7 +568,7 @@ async def get_recommended_events(email: str):
             score = item.get("score")
             if not isinstance(label, str) or not isinstance(score, (int, float)):
                 continue
-            if score <= 0.25:
+            if score <= score_threshold:
                 continue
 
             previous = event_scores.get(label, float("-inf"))
