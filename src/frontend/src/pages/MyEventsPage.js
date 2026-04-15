@@ -62,6 +62,14 @@ function formatDistanceLabel(distanceMiles) {
   return `${distanceMiles.toFixed(distanceMiles >= 10 ? 0 : 1)} mi`;
 }
 
+// Parse UTC datetimes from backend (returned without Z suffix) as UTC, not local time
+function parseBackendDateTime(dateStr) {
+  if (!dateStr) return null;
+  // Append 'Z' if not present to explicitly parse as UTC
+  const utcStr = dateStr.includes('Z') ? dateStr : `${dateStr}Z`;
+  return new Date(utcStr);
+}
+
 function MyEventsPage() {
   const navigate = useNavigate();
   const session = getAuthSession();
@@ -98,8 +106,8 @@ function MyEventsPage() {
 
   const formatDate = (dateStr) => {
     if (!dateStr) return '';
-    const parsed = new Date(dateStr);
-    if (!Number.isNaN(parsed.getTime())) {
+    const parsed = parseBackendDateTime(dateStr);
+    if (parsed && !Number.isNaN(parsed.getTime())) {
       return parsed.toLocaleString('en-US', {
         month: 'short',
         day: 'numeric',
@@ -109,8 +117,8 @@ function MyEventsPage() {
       });
     }
 
-    const dateOnly = new Date(`${dateStr}T00:00:00`);
-    if (!Number.isNaN(dateOnly.getTime())) {
+    const dateOnly = parseBackendDateTime(`${dateStr}T00:00:00`);
+    if (dateOnly && !Number.isNaN(dateOnly.getTime())) {
       return dateOnly.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
     }
 
