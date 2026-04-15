@@ -40,9 +40,10 @@ function CreateEventPage() {
     const localDate = new Date(year, month - 1, day, hours, minutes, 0);
     if (Number.isNaN(localDate.getTime())) return localDateTimeStr;
     
-    // Convert to UTC: subtract the timezone offset (which is in minutes)
-    // Positive offset (e.g., EDT -4 hours) = -240 minutes, so we subtract it to go to UTC
-    const utcDate = new Date(localDate.getTime() - localDate.getTimezoneOffset() * 60000);
+    // Convert to UTC: add the timezone offset (which is in minutes)
+    // For EDT (UTC-4): getTimezoneOffset() returns 240, so Local + 240 minutes = UTC
+    // This converts local time to UTC timestamp
+    const utcDate = new Date(localDate.getTime() + localDate.getTimezoneOffset() * 60000);
     return formatDateTimeUTC(utcDate);
   };
 
