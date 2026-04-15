@@ -227,6 +227,11 @@ def _ensure_event_defaults(event: dict):
     elif event.get("published_at") and not event.get("created_at"):
         event["created_at"] = event["published_at"]
 
+    # Explicitly mark datetime fields as UTC by appending 'Z' if not already present
+    for date_field in ["date", "end_date"]:
+        if isinstance(event.get(date_field), str) and event[date_field] and not event[date_field].endswith('Z'):
+            event[date_field] = f"{event[date_field]}Z"
+
     return event
 
 def _ensure_user_defaults(user: dict):

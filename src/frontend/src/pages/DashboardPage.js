@@ -62,18 +62,15 @@ function formatDistanceLabel(distanceMiles) {
   return `${distanceMiles.toFixed(distanceMiles >= 10 ? 0 : 1)} mi`;
 }
 
-// Parse UTC datetimes from backend (returned without Z suffix) as UTC, not local time
+// Parse UTC datetimes from backend (which now always include 'Z')
 function parseBackendDateTime(dateStr) {
   if (!dateStr) return null;
-  // Append 'Z' if not present to explicitly parse as UTC
-  const utcStr = dateStr.includes('Z') ? dateStr : `${dateStr}Z`;
-  return new Date(utcStr);
+  return new Date(dateStr);
 }
 
 function isEventLiveNow(start, end, now = new Date()) {
-  // Backend sends UTC datetimes without timezone indicator, so append 'Z' to parse as UTC
-  const startTime = start ? new Date(start.includes('Z') ? start : `${start}Z`) : null;
-  const endTime = end ? new Date(end.includes('Z') ? end : `${end}Z`) : null;
+  const startTime = start ? new Date(start) : null;
+  const endTime = end ? new Date(end) : null;
 
   return Boolean(
     startTime &&
