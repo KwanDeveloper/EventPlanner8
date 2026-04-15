@@ -4,6 +4,14 @@ import '../styles/AdminDashboard.css';
 import LoggedInNavbar from '../components/LoggedInNavbar';
 import { getAuthSession } from '../utils/authSession';
 
+const REPORT_REASON_ORDER = [
+  'Spam',
+  'Harassment',
+  'Explicit',
+  'Irrelevant',
+  'Other',
+];
+
 function AdminDashboard() {
   const navigate = useNavigate();
   const session = getAuthSession();
@@ -91,7 +99,24 @@ function AdminDashboard() {
 
   const reportBars = useMemo(() => {
     const counts = selectedReport?.reason_counts || {};
-    const entries = Object.entries(counts);
+    const orderIndexByReason = REPORT_REASON_ORDER.reduce((acc, reason, index) => {
+      acc[reason] = index;
+      return acc;
+    }, {});
+    const entries = Object.entries(counts).sort((a, b) => {
+      const countDiff = (Number(b[1]) || 0) - (Number(a[1]) || 0);
+      if (countDiff !== 0) {
+        return countDiff;
+      }
+
+      const aOrder = orderIndexByReason[a[0]] ?? Number.MAX_SAFE_INTEGER;
+      const bOrder = orderIndexByReason[b[0]] ?? Number.MAX_SAFE_INTEGER;
+      if (aOrder !== bOrder) {
+        return aOrder - bOrder;
+      }
+
+      return a[0].localeCompare(b[0]);
+    });
     const maxCount = Math.max(1, ...entries.map(([, count]) => Number(count) || 0));
     return entries.map(([reason, count]) => ({
       reason,
