@@ -551,7 +551,7 @@ function ProfilePage() {
               </p>
               <button
                 className="event-leader-btn"
-                onClick={() => navigate('/host-registeration', { state: { from: 'profile' } })}
+                onClick={() => navigate('/host-registration', { state: { from: 'profile' } })}
               >
                 Register as an Event Leader →
               </button>

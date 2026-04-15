@@ -178,7 +178,7 @@ function OnboardingPage() {
             className="event-leader-btn"
             onClick={() => {
               if (confirmLeaveOnboarding()) {
-                navigate('/host-registeration', { state: { from: 'onboarding' } });
+                navigate('/host-registration', { state: { from: 'onboarding' } });
               }
             }}
           >

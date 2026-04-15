@@ -71,6 +71,8 @@ This directory contains every feature as part of our front-end for our applicati
 ### Backend
 This directory contains every feature as part of our back-end for our application.
 - [Python](https://www.python.org/): server-side logic and API
+- [FastAPI](https://fastapi.tiangolo.com/): API framework
+- [Uvicorn](https://www.uvicorn.org/): ASGI web server
 - [MongoDB](https://www.mongodb.com/): database for users and events
 - [Hugging Face](https://huggingface.co/): open-source machine learning models and inference for the recommendation and classification system
 
@@ -170,8 +172,7 @@ Read [DOCS.md](DOCS.md) if you want to host your own recommendation and classifi
 | `/edit-event/:eventId` | Edit an event |
 | `/my-events` | Hosted events page |
 | `/report-event/:eventId` | Report an event |
-| `/hostregistration` | Register as an event host |
-| `/host-registeration` | Legacy host registration route kept for compatibility |
+| `/host-registration` | Register as an event host |
 | `/admin` | Admin dashboard |
 | `/about` | About the platform |
 

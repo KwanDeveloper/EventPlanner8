@@ -70,8 +70,7 @@ function App() {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<LoginPage />} />
-          <Route path="/host-registeration" element={<HostRegistrationPage />} />
-          <Route path="/hostregistration" element={<HostRegistrationPage />} />
+          <Route path="/host-registration" element={<HostRegistrationPage />} />
           <Route path="/about" element={<AboutPage />} />
           <Route path="/signup" element={<SignupPage />} />
           <Route path="/dashboard" element={<DashboardPage />} />

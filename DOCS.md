@@ -2,6 +2,7 @@
 
 `nlp.py` was our initial design for the recommendation algorithm. The current deployment is simplified and optimized using ONNX and BF16 on Hugging Face Spaces.
 
+## Hugging Face Setup
 The `docs` directory contains the source code for the Hugging Face API.
 - The `huggingface_api` directory contains the full source code hosted on Hugging Face Spaces. The free `ZeroGPU` hardware provides 16 usable cores for sentence similarity and classification inference.
 
