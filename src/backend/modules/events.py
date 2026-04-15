@@ -1,6 +1,6 @@
 # Imports
 import uuid
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 from modules.database import database
 from modules.engine import give_recommendation
 
@@ -41,7 +41,9 @@ def _same_event_minute(first_date: str, second_date: str):
 def _validate_event_window(start_date: str, end_date: str, allow_existing_past_start: bool = False):
     start_time = _parse_event_datetime(start_date)
     end_time = _parse_event_datetime(end_date)
-    current_minute = datetime.utcnow().replace(second=0, microsecond=0)
+    
+    # Add a 10-minute grace period to account for UI input delays
+    current_minute = (datetime.utcnow() - timedelta(minutes=10)).replace(second=0, microsecond=0)
 
     if not allow_existing_past_start and start_time < current_minute:
         raise ValueError("Event date and time cannot be in the past")
@@ -503,6 +505,7 @@ def create_event(owner_email: str, title: str, host: str, date: str, end_date: s
         "description": description,
         "published_at": published_at,
         "created_at": published_at,
+        "last_modified_at": published_at,
         "attendee_emails": [],
     }
     events_database.set_document(event_id, event)
@@ -727,6 +730,7 @@ def update_event(event_id: str, owner_email: str, title: str, host: str, date: s
         "coordinates": coordinates,
         "location_types": location_types,
         "description": description,
+        "last_modified_at": datetime.utcnow().isoformat() + 'Z',
     })
     events_database.set_document(event_id, event)
     return {"success": True, "message": "Event updated", "event": event}

@@ -30,7 +30,6 @@ function CreateEventPage() {
 
   const localDateTimeToUTC = (localDateTimeStr) => {
     if (!localDateTimeStr) return '';
-    // Convert local time string to UTC ISO string
     // The datetime-local input provides "YYYY-MM-DDTHH:mm" in local time
     const [datePart, timePart] = localDateTimeStr.split('T');
     const [year, month, day] = datePart.split('-').map(Number);
@@ -40,11 +39,8 @@ function CreateEventPage() {
     const localDate = new Date(year, month - 1, day, hours, minutes, 0);
     if (Number.isNaN(localDate.getTime())) return localDateTimeStr;
     
-    // Convert to UTC: add the timezone offset (which is in minutes)
-    // For EDT (UTC-4): getTimezoneOffset() returns 240, so Local + 240 minutes = UTC
-    // This converts local time to UTC timestamp
-    const utcDate = new Date(localDate.getTime() + localDate.getTimezoneOffset() * 60000);
-    return formatDateTimeUTC(utcDate);
+    // Convert to ISO string which automatically uses UTC and appends 'Z'
+    return localDate.toISOString();
   };
 
   const getCurrentDateTime = () => formatDateTimeLocal(new Date());
@@ -255,7 +251,11 @@ function CreateEventPage() {
       return;
     }
 
-    if (new Date(effectiveStartDate) < new Date(submitCurrentDateTime)) {
+    // Allow a 10-minute grace period to account for time spent filling out the form
+    const minAllowedTime = new Date(submitCurrentDateTime);
+    minAllowedTime.setMinutes(minAllowedTime.getMinutes() - 10);
+
+    if (new Date(effectiveStartDate) < minAllowedTime) {
       setError('Event date and time cannot be in the past.');
       return;
     }

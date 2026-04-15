@@ -90,9 +90,9 @@ function MyEventsPage() {
           // Filter out expired events
           const activeEvents = (data.events || []).filter((event) => !isEventExpired(event.end_date));
           const sortedEvents = activeEvents.sort((a, b) => {
-            const aTime = new Date(a.date || 0).getTime();
-            const bTime = new Date(b.date || 0).getTime();
-            return aTime - bTime;
+            const aTime = new Date(a.last_modified_at || a.published_at || a.created_at || a.date || 0).getTime();
+            const bTime = new Date(b.last_modified_at || b.published_at || b.created_at || b.date || 0).getTime();
+            return bTime - aTime;
           });
           setEvents(sortedEvents);
         }

@@ -37,15 +37,17 @@ function EditEventPage() {
 
   const localDateTimeToUTC = (localDateTimeStr) => {
     if (!localDateTimeStr) return '';
-    // Create a Date interpreting the string as local time
+    // The datetime-local input provides "YYYY-MM-DDTHH:mm" in local time
     const [datePart, timePart] = localDateTimeStr.split('T');
     const [year, month, day] = datePart.split('-').map(Number);
     const [hours, minutes] = (timePart || '00:00').split(':').map(Number);
+    
+    // Create a date object interpreting the values as local time
     const localDate = new Date(year, month - 1, day, hours, minutes, 0);
     if (Number.isNaN(localDate.getTime())) return localDateTimeStr;
-    // Convert local to UTC by adding the timezone offset
-    const utcDate = new Date(localDate.getTime() + localDate.getTimezoneOffset() * 60000);
-    return formatDateTimeUTC(utcDate);
+    
+    // Convert to ISO string which automatically uses UTC and appends 'Z'
+    return localDate.toISOString();
   };
 
   const [form, setForm] = useState({
@@ -246,6 +248,7 @@ function EditEventPage() {
     if (Number.isNaN(parsed.getTime())) return false;
 
     const now = new Date();
+    now.setMinutes(now.getMinutes() - 10);
     now.setSeconds(0, 0);
     return parsed >= now;
   };
