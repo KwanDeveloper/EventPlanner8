@@ -480,7 +480,7 @@ def create_event(owner_email: str, title: str, host: str, date: str, end_date: s
     description = _normalize_event_description(description)
     coordinates = _normalize_coordinates(coordinates)
     if not location_types:
-        raise ValueError("Select at least one event location type")
+        raise ValueError("Select at least one event preference")
     
     # Ensure dates have 'Z' indicator for UTC
     if isinstance(date, str) and date and not date.endswith('Z'):
@@ -710,7 +710,7 @@ def update_event(event_id: str, owner_email: str, title: str, host: str, date: s
     description = _normalize_event_description(description)
     coordinates = _normalize_coordinates(coordinates)
     if not location_types:
-        raise ValueError("Select at least one event location type")
+        raise ValueError("Select at least one event preference")
 
     # Ensure dates have 'Z' indicator for UTC
     if isinstance(date, str) and date and not date.endswith('Z'):

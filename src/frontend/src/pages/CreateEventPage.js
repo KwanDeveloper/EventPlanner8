@@ -250,7 +250,7 @@ function CreateEventPage() {
     }
 
     if (!form.location_types.length) {
-      setError('Select at least one event location type.');
+      setError('Select at least one event preference.');
       return;
     }
 
@@ -452,7 +452,7 @@ function CreateEventPage() {
           </div>
 
           <div className="ce-field">
-            <label>Preferences</label>
+            <label>Event Preferences</label>
             <div className="ce-toggle-row">
               <button
                 type="button"
