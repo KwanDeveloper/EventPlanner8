@@ -33,7 +33,7 @@ function AboutPage() {
       canonical: document.head.querySelector(selectors.canonical)?.getAttribute('href') ?? ''
     };
 
-    document.title = 'About EventPlanner8 ✦ AI Event Platform and Developers';
+    document.title = 'EventPlanner8';
     setMetaAttribute(
       selectors.description,
       'content',
@@ -42,7 +42,7 @@ function AboutPage() {
     setMetaAttribute(
       selectors.ogTitle,
       'content',
-      'About EventPlanner8 ✦ AI Event Platform and Developers'
+      'About EventPlanner8 AI Event Platform and Developers'
     );
     setMetaAttribute(
       selectors.ogDescription,
@@ -52,7 +52,7 @@ function AboutPage() {
     setMetaAttribute(
       selectors.twitterTitle,
       'content',
-      'About EventPlanner8 ✦ AI Event Platform and Developers'
+      'About EventPlanner8 AI Event Platform and Developers'
     );
     setMetaAttribute(
       selectors.twitterDescription,
@@ -233,5 +233,3 @@ function AboutPage() {
 }
 
 export default AboutPage;
-
-
