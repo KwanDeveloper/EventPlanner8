@@ -1,6 +1,6 @@
 {
   "short_name": "EventPlanner8",
-  "name": "EventPlanner8",
+  "name": "EventPlanner8 - Discover Local Events Near You",
   "icons": [
     {
       "src": "favicon.ico",
@@ -15,6 +15,6 @@
   ],
   "start_url": ".",
   "display": "standalone",
-  "theme_color": "#000000",
+  "theme_color": "#111827",
   "background_color": "#ffffff"
 }

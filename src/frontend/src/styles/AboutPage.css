@@ -44,3 +44,78 @@
   border-bottom-color: rgba(42, 47, 138, 0.7);
 }
 
+.about-team-intro {
+  margin-bottom: 28px;
+}
+
+.developer-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 22px;
+}
+
+.developer-card {
+  position: relative;
+  display: grid;
+  grid-template-columns: 96px minmax(0, 1fr);
+  gap: 20px;
+  align-items: start;
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid rgba(86, 102, 192, 0.12);
+  border-radius: 22px;
+  padding: 28px 24px 22px;
+  box-shadow: 0 16px 38px rgba(38, 48, 96, 0.08);
+}
+
+.developer-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 52px;
+  height: 34px;
+  padding: 0 12px;
+  border-radius: 999px;
+  background: #2f379d;
+  color: #fff;
+  font-size: 0.8rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  margin-bottom: 16px;
+}
+
+.developer-name {
+  font-size: 1.5rem;
+  line-height: 1.15;
+  color: #2f379d;
+  margin: 0 0 14px;
+}
+
+.developer-list {
+  margin: 0;
+  padding-left: 1.2rem;
+  color: #24315f;
+  line-height: 1.6;
+}
+
+.developer-list li + li {
+  margin-top: 10px;
+}
+
+.developer-content {
+  min-width: 0;
+}
+
+@media (max-width: 640px) {
+  .about-section {
+    padding: 28px 22px;
+  }
+
+  .developer-card {
+    grid-template-columns: 1fr;
+    padding: 22px 18px 18px;
+  }
+
+  .developer-name {
+    font-size: 1.28rem;
+  }
+}
